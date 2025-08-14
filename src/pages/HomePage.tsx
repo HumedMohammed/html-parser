@@ -67,15 +67,13 @@ export function HomePage() {
         {/* Header */}
         <motion.div variants={itemVariants} className="text-center mb-8">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-            <Link to="https://www.youtube.com/">
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-                className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl shadow-lg"
-              >
-                <Code2 className="w-8 h-8 text-white" />
-              </motion.div>
-            </Link>
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.2 }}
+              className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl shadow-lg"
+            >
+              <Code2 className="w-8 h-8 text-white" />
+            </motion.div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent text-center">
               HTML Live Editor
             </h1>
