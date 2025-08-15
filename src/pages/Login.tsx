@@ -1,12 +1,7 @@
-// File: /home/humed/Desktop/humed/autofacless-client/src/pages/LoginPage.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  sendPasswordResetEmail,
-} from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/utils/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -17,7 +12,6 @@ import {
   Chrome,
   AlertCircle,
   CheckCircle,
-  ArrowLeft,
   Sparkles,
   Shield,
   Zap,
@@ -36,6 +30,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/utils/pockatbase";
+import { usePbAuth } from "@/hooks/usePbAuth";
 
 interface FormData {
   email: string;
@@ -53,10 +48,19 @@ export const LoginPage: React.FC = () => {
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState(false);
+  const {
+    handleGoogleAuth,
+    errors,
+    loading,
+    success,
+    setErrors,
+    setLoading,
+    setSuccess,
+  } = usePbAuth();
+  // const [errors, setErrors] = useState<FormErrors>({});
+  // const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(false);
+  // const [success, setSuccess] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
@@ -128,32 +132,6 @@ export const LoginPage: React.FC = () => {
           break;
         default:
           errorMessage = error.message;
-      }
-
-      setErrors({ general: errorMessage });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setErrors({});
-
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      setSuccess(true);
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1000);
-    } catch (error: any) {
-      let errorMessage = "Google login failed. Please try again.";
-
-      if (error.code === "auth/popup-closed-by-user") {
-        errorMessage = "Login cancelled";
-      } else if (error.code === "auth/popup-blocked") {
-        errorMessage = "Popup blocked. Please allow popups and try again";
       }
 
       setErrors({ general: errorMessage });
@@ -358,7 +336,7 @@ export const LoginPage: React.FC = () => {
                 type="button"
                 variant="outline"
                 className="w-full h-12 border-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 group"
-                onClick={handleGoogleLogin}
+                onClick={handleGoogleAuth}
                 disabled={loading}
               >
                 <Chrome className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />

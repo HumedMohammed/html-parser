@@ -9,6 +9,7 @@ import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/Login";
 import { LoadingCircle } from "./components/icons";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { LandingPage } from "./pages/LandingPage";
 const App: React.FC = () => {
   const [user, setUser] = React.useState<User | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -46,6 +47,10 @@ const App: React.FC = () => {
         <Routes>
           <Route
             path="/"
+            element={!user ? <LandingPage /> : <Navigate to="/signup" />}
+          />
+          <Route
+            path="/editor"
             element={!user ? <HomePage /> : <Navigate to="/signup" />}
           />
           <Route

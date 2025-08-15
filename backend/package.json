@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "db": "cd ./pocketbase && ./pocketbase serve"
+  }
+}
