@@ -20,6 +20,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // If user types are specified and user doesn't have the required type
   if (!user) {
+    console.log("JJJJJJJJJJJ");
     // Redirect based on user type
     return <Navigate to="/login" replace />;
   }

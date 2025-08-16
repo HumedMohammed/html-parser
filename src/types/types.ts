@@ -9,7 +9,7 @@ export interface Template {
   id: string;
   thumbnail: string;
   values: { texts: string[] };
-  template: { value: string; name: string; description: string };
+  template: { value: string; name: string; description?: string };
   user: string;
   numberOfEdit: number;
   numberOfExport: number;

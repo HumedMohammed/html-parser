@@ -2,8 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { selectIsFetchingUser, selectUser } from "./selector";
 import type { AuthState } from "./type";
+import { db } from "@/utils/pockatbase";
 
-const initialState: AuthState = { user: null, isFetchingUser: true };
+const initialState: AuthState = {
+  user: db.authStore.record,
+  isFetchingUser: true,
+};
 
 const authSlice = createSlice({
   name: "auth",

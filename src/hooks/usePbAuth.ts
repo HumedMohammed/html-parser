@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { FormErrors } from "@/types";
+import { useAuthSlice } from "@/pages/Auth/slice";
 import { db } from "@/utils/pockatbase";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const usePbAuth = () => {
+  const { actions, dispatch } = useAuthSlice();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [errors, setErrors] = useState<Partial<FormErrors>>({});
+  const [errors, setErrors] = useState<Partial<any>>({});
   const navigate = useNavigate();
   const handleGoogleAuth = async () => {
     setLoading(true);
@@ -20,6 +21,7 @@ export const usePbAuth = () => {
       });
 
       if (authData) {
+        dispatch(actions.setUser(authData.record));
         setSuccess(true);
         setTimeout(() => {
           navigate("/dashboard");

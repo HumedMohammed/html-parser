@@ -1,4 +1,5 @@
 import { useSaveTemplateMutation } from "@/pages/Editor/services";
+import type { Template } from "@/types/types";
 import { db } from "@/utils/pockatbase";
 import { useRef, useState } from "react";
 
@@ -133,6 +134,9 @@ export const useHtmlParser = () => {
       setSuccess(`Successfully parsed ${foundTexts.length} text elements`);
 
       setTimeout(() => setIsLoading(false), 500);
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
       saveTemplate({
         values: { texts: foundTexts },
         templates: { origin: htmlString, value: htmlString },
@@ -313,6 +317,20 @@ export const useHtmlParser = () => {
     scrollToElementInPreview(id);
   };
 
+  const reset = () => {
+    setHtmlDoc(null);
+    setTexts([]);
+    setActiveTextId(null);
+    setIsLoading(false);
+    setSuccess("");
+    setError("");
+    setHtmlInput("");
+  };
+
+  const updateTemplate = async (template: Template) => {
+    saveTemplate(template);
+  };
+
   return {
     containerVariants,
     itemVariants,
@@ -338,5 +356,7 @@ export const useHtmlParser = () => {
     parseHtml,
     setHtmlDoc,
     getDocumentStyles,
+    reset,
+    updateTemplate,
   };
 };
