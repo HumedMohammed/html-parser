@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Copy,
   Share2,
@@ -19,6 +19,8 @@ import {
   Check,
   ExternalLink,
   X,
+  RefreshCw,
+  CheckCircle,
 } from "lucide-react";
 import { debounce } from "lodash";
 
@@ -26,18 +28,24 @@ interface EditorNavigationProps {
   templateName?: string;
   isEditing?: boolean;
   publicLink?: string;
+  saving: boolean;
+  savingSuccess: boolean;
   onNameChange?: (name: string) => void;
   onDuplicate?: () => void;
   onShare?: () => void;
   onDelete?: () => void;
   onCreatePublicLink?: () => void;
   reset: () => void;
+  setTemplateName: (name: string) => void;
 }
 
 export const EditorNavigation: React.FC<EditorNavigationProps> = ({
-  templateName = "Untitled",
+  templateName,
   isEditing = false,
   publicLink,
+  saving,
+  savingSuccess,
+  setTemplateName,
   onNameChange,
   onDuplicate,
   onShare,
@@ -45,24 +53,16 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
   onCreatePublicLink,
   reset,
 }) => {
-  const [name, setName] = useState(templateName);
+  //   const [name, setName] = useState(templateName);
   const [copied, setCopied] = useState(false);
 
   // Debounced name change handler
-  const debouncedNameChange = debounce((newName: string) => {
-    onNameChange?.(newName);
-  }, 500);
-
-  useEffect(() => {
-    debouncedNameChange(name);
-    return () => {
-      debouncedNameChange.cancel();
-    };
-  }, [name, debouncedNameChange]);
-
-  useEffect(() => {
-    setName(templateName);
-  }, [templateName]);
+  const debouncedNameChange = useCallback(
+    debounce((name: string) => {
+      onNameChange?.(name);
+    }, 1500),
+    []
+  );
 
   const handleCopyLink = async () => {
     if (publicLink) {
@@ -90,13 +90,44 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
       animate={{ opacity: 1, y: 0 }}
       className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 px-6 py-4"
     >
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <AnimatePresence mode="wait">
+          {saving && (
+            <motion.div
+              key="saving"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              <span>Saving...</span>
+            </motion.div>
+          )}
+          {savingSuccess && (
+            <motion.div
+              key="saved"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="flex items-center gap-1 text-green-600"
+            >
+              <CheckCircle className="w-3 h-3" />
+              <span>Saved</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       <div className="flex items-center justify-between">
         {/* Left Section - Template Name */}
         <div className="flex items-center space-x-4 flex-1 max-w-md">
           <div className="relative flex-1">
             <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={templateName}
+              onChange={(e) => {
+                setTemplateName(e.target.value);
+                debouncedNameChange(e.target.value);
+              }}
               placeholder="Template name..."
               className="text-xl font-semibold bg-transparent border-0 focus:ring-0 focus:border-0 px-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />

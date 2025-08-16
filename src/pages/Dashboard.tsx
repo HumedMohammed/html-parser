@@ -15,7 +15,7 @@ import { db } from "@/utils/pockatbase";
 import { TemplateCard } from "@/components/DashboardComponents/TemplateCard";
 import { TemplateTable } from "@/components/DashboardComponents/TemplateTable";
 import { FilterPanel } from "@/components/DashboardComponents/FilterPanel";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useNavigation } from "react-router-dom";
 import type { Template } from "@/types/types";
 
 interface FilterState {
@@ -27,6 +27,7 @@ interface FilterState {
 }
 
 export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -73,6 +74,7 @@ export const Dashboard: React.FC = () => {
       case "edit":
         // Navigate to edit page
         console.log("Edit template:", templateId);
+        navigate(`/editor?templateId=${templateId}`);
         break;
       case "delete":
         await handleDeleteTemplate(templateId);

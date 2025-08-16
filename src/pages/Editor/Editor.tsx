@@ -27,8 +27,23 @@ import {
 import { cn } from "@/lib/utils";
 import { useHtmlParser } from "@/hooks/useHtmlParser";
 import { EditorNavigation } from "./EditorNavigation";
+import { useGetSingleTemplateQuery } from "./services";
+import { useSearchParams } from "react-router-dom";
+import { LoadingPage } from "@/components/shared/LoadingPage";
+import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
 
 export function Editor() {
+  const [searchParam] = useSearchParams();
+  const templateId = searchParam.get("templateId");
+  const { data, isLoading: gettingTemplate } = useGetSingleTemplateQuery(
+    templateId as string,
+    {
+      skip: !templateId,
+      refetchOnFocus: true,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
   const {
     activeTextId,
     containerVariants,
@@ -40,6 +55,9 @@ export function Editor() {
     itemVariants,
     success,
     texts,
+    templateName,
+    saving,
+    savingSuccess,
     exportHtml,
     handlePasteFromClipboard,
     handleTextChange,
@@ -48,7 +66,19 @@ export function Editor() {
     setHtmlInput,
     parseHtml,
     getDocumentStyles,
-  } = useHtmlParser();
+    updateTemplate,
+    setTemplateName,
+  } = useHtmlParser({
+    template: data,
+  });
+
+  if (gettingTemplate) {
+    return <LoadingPage />;
+  }
+
+  if (templateId && !data) {
+    return <TemplateNotFound />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950">
@@ -111,7 +141,19 @@ export function Editor() {
             </p>
           </motion.div>
         ) : (
-          <EditorNavigation onNameChange={(value) => {}} reset={reset} />
+          <EditorNavigation
+            setTemplateName={setTemplateName}
+            templateName={templateName}
+            onNameChange={(value) => {
+              updateTemplate({
+                ...(data ?? {}),
+                template: { ...(data?.template ?? {}), name: value },
+              });
+            }}
+            reset={reset}
+            saving={saving}
+            savingSuccess={savingSuccess}
+          />
         )}
 
         {/* HTML Input Section */}

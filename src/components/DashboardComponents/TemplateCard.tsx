@@ -24,7 +24,10 @@ import { getFilePreview } from "@/utils";
 
 interface TemplateCardProps {
   template: Template;
-  onAction: (action: string, templateId: string) => void;
+  onAction: (
+    action: "edit" | "copy" | "delete" | "share",
+    templateId: string
+  ) => void;
 }
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
@@ -40,11 +43,8 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
+    const nameArray = name.split("");
+    return (nameArray[0] + nameArray[1]).toUpperCase();
   };
 
   return (
@@ -54,7 +54,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="group overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <Card className="group overflow-hidden py-0 pb-4 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-md hover:shadow-xl transition-all duration-300">
         <div className="relative">
           {/* Thumbnail */}
           <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 relative overflow-hidden">
@@ -158,17 +158,23 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             {/* User and Date */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={template.expand?.user?.avatar} />
-                  <AvatarFallback className="text-xs">
-                    {template.expand?.user?.name
-                      ? getInitials(template.expand.user.name)
-                      : "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
-                  {template.expand?.user?.name || "Unknown User"}
-                </span>
+                <div className="flex flex-col">
+                  <p className="text-[12px] font-bold">Created By</p>
+                  <div className="flex items-center gap-1">
+                    <Avatar className="h-6 w-6 border border-indigo-500">
+                      <AvatarImage src={template.expand?.user?.avatar} />
+                      <AvatarFallback className="text-xs">
+                        {template.expand?.user?.name
+                          ? getInitials(template.expand.user.name)
+                          : "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
+                      {template.expand?.user?.name.split(" ")[0] ||
+                        "Unknown User"}
+                    </span>
+                  </div>
+                </div>
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {formatDate(template.updated)}

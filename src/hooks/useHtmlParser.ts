@@ -1,15 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSaveTemplateMutation } from "@/pages/Editor/services";
-import type { Template } from "@/types/types";
+import type { Template, TextNode } from "@/types/types";
 import { db } from "@/utils/pockatbase";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
-interface TextNode {
-  id: string;
-  value: string;
-  label?: string;
-}
-export const useHtmlParser = () => {
+type Props = {
+  template: Template | undefined;
+};
+
+type UpdateValue = {
+  [key in keyof Template]: any;
+};
+export const useHtmlParser = ({ template }: Props) => {
+  const [searchParam, setSearchParam] = useSearchParams();
   const [htmlInput, setHtmlInput] = useState("");
+  const [templateName, setTemplateName] = useState("Untitled");
   const [htmlDoc, setHtmlDoc] = useState<Document | null>(null);
   const [exportDoc, setExportDoc] = useState<Document | null>(null); // Add this for export purposes
   const [texts, setTexts] = useState<TextNode[]>([]);
@@ -18,7 +24,9 @@ export const useHtmlParser = () => {
   const [success, setSuccess] = useState("");
   const [activeTextId, setActiveTextId] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [saveTemplate, { isLoading: saving }] = useSaveTemplateMutation();
+  const [saveTemplate, { isLoading: saving, isSuccess: savingSuccess }] =
+    useSaveTemplateMutation();
+
   // Parse HTML and extract text nodes
   const parseHtml = (htmlString: string) => {
     if (!htmlString.trim()) {
@@ -136,19 +144,43 @@ export const useHtmlParser = () => {
       setTimeout(() => setIsLoading(false), 500);
       setTimeout(() => {
         setSuccess("");
-      }, 3000);
-      saveTemplate({
-        values: { texts: foundTexts },
-        templates: { origin: htmlString, value: htmlString },
-        user: db.authStore.record?.id,
-        thumbnail: "",
-      });
+      }, 5000);
+
+      // New template
+      if (!template?.id) {
+        const valueToUpdate: Partial<Template> = {
+          values: { texts: foundTexts },
+          template: {
+            original: htmlString,
+            value: htmlString,
+            name: templateName,
+            description: "",
+          },
+          user: db.authStore.record?.id as string,
+          thumbnail: "",
+        };
+
+        saveTemplate(valueToUpdate).then((res) => {
+          if (res.data) {
+            searchParam.set("templateId", res?.data?.id);
+            setSearchParam(searchParam);
+          }
+        });
+      }
     } catch (err) {
       console.log(err);
       setError("Failed to parse HTML. Please check your HTML syntax.");
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (template) {
+      setHtmlInput(template?.template?.value);
+      setTemplateName(template?.template?.name);
+      parseHtml(template?.template?.value);
+    }
+  }, [template]);
   // Get styles from the document head
   const getDocumentStyles = () => {
     if (!exportDoc) return "";
@@ -206,8 +238,7 @@ export const useHtmlParser = () => {
               const originalOutlineOffset = parentElement.style.outlineOffset;
 
               parentElement.style.transition = "all 0.3s ease";
-              parentElement.style.outline = "2px solid rgba(59, 130, 246, 0.7)";
-              parentElement.style.borderRadius = "4px";
+              parentElement.style.outline = "2px solid rgba(59, 130, 246, 0.8)";
               parentElement.style.outlineOffset = "2px";
 
               setTimeout(() => {
@@ -327,8 +358,8 @@ export const useHtmlParser = () => {
     setHtmlInput("");
   };
 
-  const updateTemplate = async (template: Template) => {
-    saveTemplate(template);
+  const updateTemplate = async (valueToUpdate: Partial<UpdateValue>) => {
+    saveTemplate({ ...template, ...valueToUpdate });
   };
 
   return {
@@ -342,6 +373,9 @@ export const useHtmlParser = () => {
     iframeRef,
     htmlInput,
     htmlDoc,
+    saving,
+    templateName,
+    savingSuccess,
     handleTextChange,
     handlePasteFromClipboard,
     exportHtml,
@@ -358,5 +392,6 @@ export const useHtmlParser = () => {
     getDocumentStyles,
     reset,
     updateTemplate,
+    setTemplateName,
   };
 };

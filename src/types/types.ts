@@ -5,11 +5,22 @@ export interface User {
   avatar?: string;
 }
 
+export interface TextNode {
+  id: string;
+  value: string;
+  label?: string;
+}
+
 export interface Template {
   id: string;
   thumbnail: string;
-  values: { texts: string[] };
-  template: { value: string; name: string; description?: string };
+  values: { texts: TextNode[] };
+  template: {
+    value: string;
+    name: string;
+    description?: string;
+    original: string;
+  };
   user: string;
   numberOfEdit: number;
   numberOfExport: number;

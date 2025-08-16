@@ -21,6 +21,6 @@ const axiosBaseQuery =
 export const rootServiceApi = createApi({
   baseQuery: axiosBaseQuery(),
   endpoints: () => ({}),
-  tagTypes: ["get-user", "get-templates"],
+  tagTypes: ["get-user", "get-templates", "get-single-template"],
   refetchOnReconnect: true,
 });

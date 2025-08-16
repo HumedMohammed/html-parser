@@ -25,7 +25,7 @@ export const { useSaveTemplateMutation, useGetSingleTemplateQuery } =
           url: `/get-template/${templateId}`,
           method: "GET",
         }),
-        providesTags: ["get-templates"],
+        providesTags: ["get-single-template"],
       }),
     }),
     overrideExisting: true,

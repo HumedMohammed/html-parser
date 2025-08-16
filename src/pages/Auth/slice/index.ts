@@ -5,7 +5,7 @@ import type { AuthState } from "./type";
 import { db } from "@/utils/pockatbase";
 
 const initialState: AuthState = {
-  user: db.authStore.record,
+  user: db.authStore.isValid ? db.authStore.record : null,
   isFetchingUser: true,
 };
 
