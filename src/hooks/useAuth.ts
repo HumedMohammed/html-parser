@@ -24,7 +24,7 @@ export const useAuth = () => {
     };
     fetchUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localUser.id]);
+  }, [localUser?.id]);
 
   return {
     user,

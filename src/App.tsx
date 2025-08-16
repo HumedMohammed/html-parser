@@ -1,33 +1,25 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/utils/firebase";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { SignupPage } from "./pages/SignupPage";
 import LegalPage from "./pages/LegalPage";
-import { HomePage } from "./pages/HomePage";
+import { Editor } from "./pages/Editor/Editor";
 import { LoginPage } from "./pages/Login";
 import { LoadingCircle } from "./components/icons";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { LandingPage } from "./pages/LandingPage";
+import { ProtectedRoute } from "./routes/ProtectedRoutes";
+import { useAuth } from "./hooks/useAuth";
+import { Dashboard } from "./pages/Dashboard";
 const App: React.FC = () => {
-  const [user, setUser] = React.useState<User | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const { user, isFetchingUser } = useAuth();
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 300], [0, -50]);
   const y2 = useTransform(scrollY, [0, 300], [0, -100]);
 
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (loading)
+  if (isFetchingUser && !user) {
     return (
-      <div className="flex justify-center items-center h-screen dark">
+      <div className="flex justify-center items-center h-screen">
         {/* Animated Background Elements */}
         <motion.div
           style={{ y: y1 }}
@@ -40,28 +32,33 @@ const App: React.FC = () => {
         <LoadingCircle />
       </div>
     );
+  }
 
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={!user ? <LandingPage /> : <Navigate to="/signup" />}
-          />
-          <Route
-            path="/editor"
-            element={!user ? <HomePage /> : <Navigate to="/signup" />}
-          />
-          <Route
-            path="/signup"
-            element={!user ? <SignupPage /> : <Navigate to="/" />}
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/legal" element={<LegalPage />} />
-        </Routes>
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route
+          path="/editor"
+          element={
+            <ProtectedRoute>
+              <Editor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/legal" element={<LegalPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 

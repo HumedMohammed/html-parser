@@ -1,3 +1,5 @@
+import { useSaveTemplateMutation } from "@/pages/Editor/services";
+import { db } from "@/utils/pockatbase";
 import { useRef, useState } from "react";
 
 interface TextNode {
@@ -15,6 +17,7 @@ export const useHtmlParser = () => {
   const [success, setSuccess] = useState("");
   const [activeTextId, setActiveTextId] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [saveTemplate, { isLoading: saving }] = useSaveTemplateMutation();
   // Parse HTML and extract text nodes
   const parseHtml = (htmlString: string) => {
     if (!htmlString.trim()) {
@@ -130,6 +133,12 @@ export const useHtmlParser = () => {
       setSuccess(`Successfully parsed ${foundTexts.length} text elements`);
 
       setTimeout(() => setIsLoading(false), 500);
+      saveTemplate({
+        values: { texts: foundTexts },
+        templates: { origin: htmlString, value: htmlString },
+        user: db.authStore.record?.id,
+        thumbnail: "",
+      });
     } catch (err) {
       console.log(err);
       setError("Failed to parse HTML. Please check your HTML syntax.");
