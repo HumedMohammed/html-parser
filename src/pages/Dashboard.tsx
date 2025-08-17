@@ -15,8 +15,9 @@ import { db } from "@/utils/pockatbase";
 import { TemplateCard } from "@/components/DashboardComponents/TemplateCard";
 import { TemplateTable } from "@/components/DashboardComponents/TemplateTable";
 import { FilterPanel } from "@/components/DashboardComponents/FilterPanel";
-import { Link, useNavigate, useNavigation } from "react-router-dom";
-import type { Template } from "@/types/types";
+import { Link, useNavigate } from "react-router-dom";
+import type { Actions, Template } from "@/types/types";
+import { toast } from "sonner";
 
 interface FilterState {
   search: string;
@@ -69,7 +70,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const handleTemplateAction = async (action: string, templateId: string) => {
+  const handleTemplateAction = async (action: Actions, templateId: string) => {
     switch (action) {
       case "edit":
         // Navigate to edit page
@@ -83,6 +84,9 @@ export const Dashboard: React.FC = () => {
         await handleCopyTemplate(templateId);
         break;
       case "share":
+        await handleCopPublicLink(templateId);
+        break;
+      case "create_public_link":
         await handleGeneratePublicUrl(templateId);
         break;
     }
@@ -125,6 +129,13 @@ export const Dashboard: React.FC = () => {
     const publicUrl = `${window.location.origin}/template/${templateId}`;
     navigator.clipboard.writeText(publicUrl);
     // Show toast notification
+  };
+  const handleCopPublicLink = (templateId: string) => {
+    const template = templates.find((t) => t.id === templateId);
+    // Copy to clipboard
+    navigator.clipboard.writeText(template?.publicLink ?? "");
+    // Show toast notification
+    toast("Link copied successfully");
   };
 
   const containerVariants = {

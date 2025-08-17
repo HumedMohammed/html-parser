@@ -19,15 +19,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Template } from "@/types/types";
+import type { Actions, Template } from "@/types/types";
 import { getFilePreview } from "@/utils";
 
 interface TemplateCardProps {
   template: Template;
-  onAction: (
-    action: "edit" | "copy" | "delete" | "share",
-    templateId: string
-  ) => void;
+  onAction: (action: Actions, templateId: string) => void;
 }
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
@@ -112,12 +109,23 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                     <Copy className="w-4 h-4 mr-2" />
                     Duplicate
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => onAction("share", template.id)}
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share Public Link
-                  </DropdownMenuItem>
+                  {template.publicLink ? (
+                    <DropdownMenuItem
+                      onClick={() => onAction("share", template.id)}
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Copy Public Link
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        onAction("create_public_link", template.id)
+                      }
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Create Public Link
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => onAction("delete", template.id)}

@@ -4,6 +4,7 @@ import type { Template, TextNode } from "@/types/types";
 import { db } from "@/utils/pockatbase";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 type Props = {
   template: Template | undefined;
@@ -362,6 +363,31 @@ export const useHtmlParser = ({ template }: Props) => {
     saveTemplate({ ...template, ...valueToUpdate });
   };
 
+  const htmlStringToCopy = () => {
+    if (exportDoc) {
+      const styles = getDocumentStyles();
+      const htmlString = `<!DOCTYPE html>
+      <html>
+      <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+      ${styles}
+      </style>
+      </head>
+      <body>
+      ${exportDoc.body.innerHTML}
+      </body>
+      </html>`;
+      return htmlString;
+    } else {
+      toast("No Export Data", {
+        description: "Something went wrong!",
+      });
+      return "";
+    }
+  };
+
   return {
     containerVariants,
     itemVariants,
@@ -393,5 +419,6 @@ export const useHtmlParser = ({ template }: Props) => {
     reset,
     updateTemplate,
     setTemplateName,
+    htmlStringToCopy,
   };
 };

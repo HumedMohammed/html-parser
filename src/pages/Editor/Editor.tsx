@@ -31,6 +31,7 @@ import { useGetSingleTemplateQuery } from "./services";
 import { useSearchParams } from "react-router-dom";
 import { LoadingPage } from "@/components/shared/LoadingPage";
 import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
+import { toast } from "sonner";
 
 export function Editor() {
   const [searchParam] = useSearchParams();
@@ -68,6 +69,7 @@ export function Editor() {
     getDocumentStyles,
     updateTemplate,
     setTemplateName,
+    htmlStringToCopy,
   } = useHtmlParser({
     template: data,
   });
@@ -296,7 +298,20 @@ export function Editor() {
                         className="flex items-center gap-2  w-auto"
                       >
                         <Download className="w-4 h-4" />
-                        Export HTML
+                        Download HTML
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const value = htmlStringToCopy();
+                          navigator.clipboard.writeText(value);
+                          toast("HTML copied to clipboard");
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2  w-auto"
+                      >
+                        <Copy className="w-4 h-4" />
+                        Copy HTML
                       </Button>
                       {/* <Button
                         onClick={() => {

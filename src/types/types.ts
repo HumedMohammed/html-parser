@@ -34,4 +34,12 @@ export interface Template {
       avatar?: string;
     };
   };
+  publicLink?: string;
 }
+
+export type Actions =
+  | "edit"
+  | "copy"
+  | "delete"
+  | "share"
+  | "create_public_link";
