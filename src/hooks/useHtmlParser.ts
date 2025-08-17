@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useSaveTemplateMutation } from "@/pages/Editor/services";
+import {
+  useDuplicateTemplateMutation,
+  useSaveTemplateMutation,
+} from "@/pages/Editor/services";
 import type { Template, TextNode } from "@/types/types";
 import { db } from "@/utils/pockatbase";
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { debounce } from "lodash";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 type Props = {
@@ -25,6 +29,8 @@ export const useHtmlParser = ({ template }: Props) => {
   const [success, setSuccess] = useState("");
   const [activeTextId, setActiveTextId] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [duplicate, { isLoading: duplicating }] =
+    useDuplicateTemplateMutation();
   const [saveTemplate, { isLoading: saving, isSuccess: savingSuccess }] =
     useSaveTemplateMutation();
 
@@ -154,9 +160,9 @@ export const useHtmlParser = ({ template }: Props) => {
           template: {
             original: htmlString,
             value: htmlString,
-            name: templateName,
-            description: "",
           },
+          description: "",
+          name: templateName,
           user: db.authStore.record?.id as string,
           thumbnail: "",
         };
@@ -178,7 +184,7 @@ export const useHtmlParser = ({ template }: Props) => {
   useEffect(() => {
     if (template) {
       setHtmlInput(template?.template?.value);
-      setTemplateName(template?.template?.name);
+      setTemplateName(template?.name);
       parseHtml(template?.template?.value);
     }
   }, [template]);
@@ -246,7 +252,7 @@ export const useHtmlParser = ({ template }: Props) => {
                 parentElement.style.outline = originalOutline;
                 parentElement.style.borderRadius = originalBorderRadius;
                 parentElement.style.outlineOffset = originalOutlineOffset;
-              }, 2000);
+              }, 2500);
             }
           }
         }
@@ -254,33 +260,39 @@ export const useHtmlParser = ({ template }: Props) => {
     }
   };
   // Handle text change
-  const handleTextChange = (id: string, newValue: string) => {
-    const newTexts = texts.map((t) =>
-      t.id === id ? { ...t, value: newValue } : t
-    );
-    setTexts(newTexts);
+  const handleTextChange = debounce(
+    useCallback(
+      (id: string, newValue: string) => {
+        const newTexts = texts.map((t) =>
+          t.id === id ? { ...t, value: newValue } : t
+        );
+        setTexts(newTexts);
 
-    // Update the export document
-    if (exportDoc) {
-      const exportWrapper = exportDoc.querySelector(`[data-text-id="${id}"]`);
-      if (exportWrapper && exportWrapper.firstChild) {
-        exportWrapper.firstChild.nodeValue = newValue;
-      }
-    }
+        // Update the export document
+        if (exportDoc) {
+          const exportWrapper = exportDoc.querySelector(
+            `[data-text-id="${id}"]`
+          );
+          if (exportWrapper && exportWrapper.firstChild) {
+            exportWrapper.firstChild.nodeValue = newValue;
+          }
+        }
 
-    // Update the iframe content
-    if (iframeRef.current && iframeRef.current.contentDocument) {
-      const iframeWrapper = iframeRef.current.contentDocument.querySelector(
-        `[data-text-id="${id}"]`
-      );
-      if (iframeWrapper && iframeWrapper.firstChild) {
-        iframeWrapper.firstChild.nodeValue = newValue;
-      }
-    }
+        // Update the iframe content
+        if (iframeRef.current && iframeRef.current.contentDocument) {
+          const iframeWrapper = iframeRef.current.contentDocument.querySelector(
+            `[data-text-id="${id}"]`
+          );
+          if (iframeWrapper && iframeWrapper.firstChild) {
+            iframeWrapper.firstChild.nodeValue = newValue;
+          }
+        }
 
-    setActiveTextId(id);
-    scrollToElementInPreview(id);
-  };
+        setActiveTextId(id);
+      },
+      [exportDoc, texts]
+    )
+  );
 
   // Handle paste from clipboard
   const handlePasteFromClipboard = async () => {
@@ -349,7 +361,8 @@ export const useHtmlParser = ({ template }: Props) => {
     scrollToElementInPreview(id);
   };
 
-  const reset = () => {
+  const navigate = useNavigate();
+  const handleCreateNew = () => {
     setHtmlDoc(null);
     setTexts([]);
     setActiveTextId(null);
@@ -357,6 +370,7 @@ export const useHtmlParser = ({ template }: Props) => {
     setSuccess("");
     setError("");
     setHtmlInput("");
+    navigate("/editor");
   };
 
   const updateTemplate = async (valueToUpdate: Partial<UpdateValue>) => {
@@ -388,6 +402,38 @@ export const useHtmlParser = ({ template }: Props) => {
     }
   };
 
+  // useEffect(() => {
+  //   // Only save if template exists
+  //   const debounceSave = debounce((value: string) => {
+  //     updateTemplate({
+  //       template: {
+  //         ...(template?.template ?? {}),
+  //         value,
+  //         original: template?.template?.original,
+  //       },
+  //     });
+  //   }, 500);
+  //   const templateValue = `<!DOCTYPE html>
+  //                           <html>
+  //                             <head>
+  //                               <meta charset="UTF-8">
+  //                               <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  //                               <style>
+  //                                 ${getDocumentStyles()}
+  //                               </style>
+  //                             </head>
+  //                             <body>
+  //                               ${htmlDoc?.body.innerHTML}
+  //                             </body>
+  //                           </html>`;
+  //   debounceSave(templateValue);
+
+  //   // Cleanup function to cancel pending debounced calls
+  //   return () => {
+  //     debounceSave.cancel();
+  //   };
+  // }, [htmlDoc?.body.innerHTML, template]);
+
   return {
     containerVariants,
     itemVariants,
@@ -399,6 +445,7 @@ export const useHtmlParser = ({ template }: Props) => {
     iframeRef,
     htmlInput,
     htmlDoc,
+    duplicating,
     saving,
     templateName,
     savingSuccess,
@@ -416,9 +463,10 @@ export const useHtmlParser = ({ template }: Props) => {
     parseHtml,
     setHtmlDoc,
     getDocumentStyles,
-    reset,
+    handleCreateNew,
     updateTemplate,
     setTemplateName,
     htmlStringToCopy,
+    duplicate,
   };
 };

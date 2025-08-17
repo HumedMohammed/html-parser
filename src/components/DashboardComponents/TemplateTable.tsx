@@ -86,7 +86,7 @@ export const TemplateTable: React.FC<TemplateTableProps> = ({
                           fileName: template.thumbnail,
                           recordId: template.id,
                         })}
-                        alt={template.template?.name || "Template"}
+                        alt={template?.name || "Template"}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -97,7 +97,7 @@ export const TemplateTable: React.FC<TemplateTableProps> = ({
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {template.template?.name || "Untitled Template"}
+                      {template?.name || "Untitled Template"}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       Created {formatDate(template.created)}

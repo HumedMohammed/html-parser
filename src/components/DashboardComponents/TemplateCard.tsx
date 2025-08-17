@@ -62,7 +62,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                   fileName: template.thumbnail,
                   recordId: template.id,
                 })}
-                alt={template.template?.name || "Template"}
+                alt={template?.name || "Template"}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -142,7 +142,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           <CardContent className="p-4">
             {/* Template Name */}
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2 truncate">
-              {template.template?.name || "Untitled Template"}
+              {template?.name || "Untitled Template"}
             </h3>
 
             {/* Stats */}

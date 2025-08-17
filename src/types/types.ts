@@ -17,8 +17,6 @@ export interface Template {
   values: { texts: TextNode[] };
   template: {
     value: string;
-    name: string;
-    description?: string;
     original: string;
   };
   user: string;
@@ -35,6 +33,8 @@ export interface Template {
     };
   };
   publicLink?: string;
+  name: string;
+  description?: string;
 }
 
 export type Actions =

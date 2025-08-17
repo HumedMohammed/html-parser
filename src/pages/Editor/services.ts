@@ -1,32 +1,45 @@
 import { rootServiceApi } from "@/store/service";
 import type { Template } from "@/types/types";
 
-export const { useSaveTemplateMutation, useGetSingleTemplateQuery } =
-  rootServiceApi.injectEndpoints({
-    endpoints: (build) => ({
-      saveTemplate: build.mutation<Template, Partial<Template>>({
-        query: (template) => ({
-          url: "/save-template",
-          method: "POST",
-          data: template,
-        }),
-        invalidatesTags: ["get-templates"],
+export const {
+  useSaveTemplateMutation,
+  useGetSingleTemplateQuery,
+  useDuplicateTemplateMutation,
+} = rootServiceApi.injectEndpoints({
+  endpoints: (build) => ({
+    saveTemplate: build.mutation<Template, Partial<Template>>({
+      query: (template) => ({
+        url: "/save-template",
+        method: "POST",
+        data: template,
       }),
-      // updateTemplate: build.mutation<Template, Template>({
-      //   query: (template) => ({
-      //     url: `/update-template/${template.id}`,
-      //     method: "PUT",
-      //     data: template,
-      //   }),
-      //   invalidatesTags: ["get-templates"],
-      // }),
-      getSingleTemplate: build.query<Template, string>({
-        query: (templateId) => ({
-          url: `/get-template/${templateId}`,
-          method: "GET",
-        }),
-        providesTags: ["get-single-template"],
-      }),
+      invalidatesTags: ["get-templates"],
     }),
-    overrideExisting: true,
-  });
+    // updateTemplate: build.mutation<Template, Template>({
+    //   query: (template) => ({
+    //     url: `/update-template/${template.id}`,
+    //     method: "PUT",
+    //     data: template,
+    //   }),
+    //   invalidatesTags: ["get-templates"],
+    // }),
+    getSingleTemplate: build.query<Template, string>({
+      query: (templateId) => ({
+        url: `/get-template/${templateId}`,
+        method: "GET",
+      }),
+      providesTags: ["get-single-template"],
+    }),
+    duplicateTemplate: build.mutation<Template, string>({
+      query: (templateId) => ({
+        url: `/duplicate-template`,
+        method: "POST",
+        data: {
+          templateId,
+        },
+      }),
+      invalidatesTags: ["get-single-template"],
+    }),
+  }),
+  overrideExisting: true,
+});

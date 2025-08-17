@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,11 +18,12 @@ import {
   Link as LinkIcon,
   Check,
   ExternalLink,
-  X,
   RefreshCw,
   CheckCircle,
+  Plus,
 } from "lucide-react";
 import { debounce } from "lodash";
+import { LoadingCircle } from "@/components/icons";
 
 interface EditorNavigationProps {
   templateName?: string;
@@ -30,12 +31,13 @@ interface EditorNavigationProps {
   publicLink?: string;
   saving: boolean;
   savingSuccess: boolean;
+  duplicating: boolean;
   onNameChange?: (name: string) => void;
   onDuplicate?: () => void;
   onShare?: () => void;
   onDelete?: () => void;
   onCreatePublicLink?: () => void;
-  reset: () => void;
+  handleCreateNew: () => void;
   setTemplateName: (name: string) => void;
 }
 
@@ -45,13 +47,14 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
   publicLink,
   saving,
   savingSuccess,
+  duplicating,
   setTemplateName,
   onNameChange,
   onDuplicate,
   onShare,
   onDelete,
   onCreatePublicLink,
-  reset,
+  handleCreateNew,
 }) => {
   //   const [name, setName] = useState(templateName);
   const [copied, setCopied] = useState(false);
@@ -153,7 +156,7 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
             onClick={onDuplicate}
             className="hidden sm:flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            <Copy className="w-4 h-4" />
+            {duplicating ? <LoadingCircle /> : <Copy className="w-4 h-4" />}
             <span>Duplicate</span>
           </Button>
 
@@ -215,13 +218,13 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
           )}
 
           <Button
-            onClick={reset}
+            onClick={handleCreateNew}
             variant="outline"
             size="sm"
             className="hidden sm:flex  items-center gap-1 w-auto grow"
           >
-            <X className="w-4 h-4" />
-            Reset
+            <Plus className="w-4 h-4" />
+            Create New
           </Button>
           {/* Mobile Menu */}
           <DropdownMenu>
@@ -253,9 +256,9 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
                   </>
                 )}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={reset}>
-                <X className="w-4 h-4 mr-2" />
-                Reset
+              <DropdownMenuItem onClick={handleCreateNew}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create New
               </DropdownMenuItem>
               {publicLink && (
                 <DropdownMenuItem onClick={handleCopyLink}>

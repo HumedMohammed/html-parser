@@ -34,7 +34,7 @@ import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
 import { toast } from "sonner";
 
 export function Editor() {
-  const [searchParam] = useSearchParams();
+  const [searchParam, setSearchParam] = useSearchParams();
   const templateId = searchParam.get("templateId");
   const { data, isLoading: gettingTemplate } = useGetSingleTemplateQuery(
     templateId as string,
@@ -59,17 +59,19 @@ export function Editor() {
     templateName,
     saving,
     savingSuccess,
+    handleTextChange,
+    duplicating,
     exportHtml,
     handlePasteFromClipboard,
-    handleTextChange,
     handleTextFocus,
-    reset,
+    handleCreateNew,
     setHtmlInput,
     parseHtml,
     getDocumentStyles,
     updateTemplate,
     setTemplateName,
     htmlStringToCopy,
+    duplicate,
   } = useHtmlParser({
     template: data,
   });
@@ -149,12 +151,26 @@ export function Editor() {
             onNameChange={(value) => {
               updateTemplate({
                 ...(data ?? {}),
-                template: { ...(data?.template ?? {}), name: value },
+                name: value,
               });
             }}
-            reset={reset}
+            handleCreateNew={handleCreateNew}
             saving={saving}
             savingSuccess={savingSuccess}
+            onDuplicate={() => {
+              if (templateId) {
+                duplicate(templateId as string).then((res) => {
+                  if (res.data) {
+                    toast("Template duplicated successfully");
+                    searchParam.set("templateId", res.data.id);
+                    setSearchParam(searchParam);
+                  }
+                });
+              } else {
+                toast("❌ Please select a template to duplicate");
+              }
+            }}
+            duplicating={duplicating}
           />
         )}
 
