@@ -16,16 +16,8 @@ import { TemplateCard } from "@/components/DashboardComponents/TemplateCard";
 import { TemplateTable } from "@/components/DashboardComponents/TemplateTable";
 import { FilterPanel } from "@/components/DashboardComponents/FilterPanel";
 import { Link, useNavigate } from "react-router-dom";
-import type { Actions, Template } from "@/types/types";
+import type { Actions, FilterState, Template } from "@/types/types";
 import { toast } from "sonner";
-
-interface FilterState {
-  search: string;
-  sortBy: string;
-  sortOrder: "asc" | "desc";
-  dateRange: string;
-  user: string;
-}
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -39,6 +31,9 @@ export const Dashboard: React.FC = () => {
     sortOrder: "desc",
     dateRange: "all",
     user: "all",
+    creator: "all",
+    maxEdits: null,
+    minEdits: null,
   });
 
   useEffect(() => {
@@ -107,7 +102,7 @@ export const Dashboard: React.FC = () => {
       if (template) {
         const newTemplate = {
           ...template.template,
-          name: `${template.template.name} (Copy)`,
+          name: `${template.name} (Copy)`,
         };
 
         await db.collection("templates").create({

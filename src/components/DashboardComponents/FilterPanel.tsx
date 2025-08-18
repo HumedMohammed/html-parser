@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { motion } from "framer-motion";
 import { X, Calendar, User, BarChart3 } from "lucide-react";
@@ -12,16 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import type { FilterState } from "@/types/types";
 
 interface FilterPanelProps {
-  filters: {
-    search: string;
-    dateRange: string;
-    creator: string;
-    minEdits: number;
-    maxEdits: number;
-    sortBy: string;
-  };
+  filters: FilterState;
   onFiltersChange: (filters: any) => void;
   onClose: () => void;
 }
@@ -126,7 +121,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </Label>
             <div className="px-2">
               <Slider
-                value={[filters.minEdits, filters.maxEdits]}
+                value={[filters.minEdits ?? 0, filters.maxEdits ?? 0]}
                 onValueChange={([min, max]) => {
                   handleFilterChange("minEdits", min);
                   handleFilterChange("maxEdits", max);

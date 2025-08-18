@@ -1,5 +1,5 @@
 import { db } from "@/utils/pockatbase";
-import type { User } from "@/types";
+import type { User } from "@/types/types";
 import { useEffect } from "react";
 import { useAuthSlice } from "@/pages/Auth/slice";
 

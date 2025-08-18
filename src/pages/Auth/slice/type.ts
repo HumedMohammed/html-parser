@@ -1,6 +1,6 @@
-import type { User } from "@/types";
+import type { User } from "@/types/types";
 
 export type AuthState = {
-  user: User | null;
+  user: Partial<User> | null;
   isFetchingUser: boolean;
 };

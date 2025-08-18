@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/utils/firebase";
 import { useNavigate, Link } from "react-router-dom";
@@ -198,7 +198,7 @@ export const LoginPage: React.FC = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  const successVariants = {
+  const successVariants: Variants = {
     hidden: { scale: 0, opacity: 0 },
     visible: {
       scale: 1,
@@ -211,7 +211,7 @@ export const LoginPage: React.FC = () => {
     },
   };
 
-  const floatingVariants = {
+  const floatingVariants: Variants = {
     animate: {
       y: [-10, 10, -10],
       rotate: [0, 5, -5, 0],

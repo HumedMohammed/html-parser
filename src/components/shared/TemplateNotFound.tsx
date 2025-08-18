@@ -1,9 +1,9 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileX, ArrowLeft, Plus, Search } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface TemplateNotFoundProps {
   onGoBack?: () => void;
@@ -20,8 +20,7 @@ export const TemplateNotFound: React.FC<TemplateNotFoundProps> = ({
   title = "Template Not Found",
   description = "The template you're looking for doesn't exist or may have been deleted.",
 }) => {
-  const navigate = useNavigate();
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0, scale: 0.95 },
     visible: {
       opacity: 1,
@@ -33,7 +32,7 @@ export const TemplateNotFound: React.FC<TemplateNotFoundProps> = ({
     },
   };
 
-  const iconVariants = {
+  const iconVariants: Variants = {
     hidden: { scale: 0, rotate: -180 },
     visible: {
       scale: 1,
@@ -46,7 +45,7 @@ export const TemplateNotFound: React.FC<TemplateNotFoundProps> = ({
     },
   };
 
-  const buttonVariants = {
+  const buttonVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
       opacity: 1,

@@ -19,12 +19,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import type { Template } from "@/types/types";
+import type { Actions, Template } from "@/types/types";
 import { getFilePreview } from "@/utils";
 
 interface TemplateTableProps {
   templates: Template[];
-  onAction: (action: string, templateId: string) => void;
+  onAction: (action: Actions, templateId: string) => void;
 }
 
 export const TemplateTable: React.FC<TemplateTableProps> = ({

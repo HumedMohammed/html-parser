@@ -402,37 +402,37 @@ export const useHtmlParser = ({ template }: Props) => {
     }
   };
 
-  // useEffect(() => {
-  //   // Only save if template exists
-  //   const debounceSave = debounce((value: string) => {
-  //     updateTemplate({
-  //       template: {
-  //         ...(template?.template ?? {}),
-  //         value,
-  //         original: template?.template?.original,
-  //       },
-  //     });
-  //   }, 500);
-  //   const templateValue = `<!DOCTYPE html>
-  //                           <html>
-  //                             <head>
-  //                               <meta charset="UTF-8">
-  //                               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //                               <style>
-  //                                 ${getDocumentStyles()}
-  //                               </style>
-  //                             </head>
-  //                             <body>
-  //                               ${htmlDoc?.body.innerHTML}
-  //                             </body>
-  //                           </html>`;
-  //   debounceSave(templateValue);
+  useEffect(() => {
+    // Only save if template exists
+    const debounceSave = debounce((value: string) => {
+      updateTemplate({
+        template: {
+          ...(template?.template ?? {}),
+          value,
+          original: template?.template?.original,
+        },
+      });
+    }, 500);
+    const templateValue = `<!DOCTYPE html>
+                            <html>
+                              <head>
+                                <meta charset="UTF-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <style>
+                                  ${getDocumentStyles()}
+                                </style>
+                              </head>
+                              <body>
+                                ${exportDoc?.body.innerHTML}
+                              </body>
+                            </html>`;
+    debounceSave(templateValue);
 
-  //   // Cleanup function to cancel pending debounced calls
-  //   return () => {
-  //     debounceSave.cancel();
-  //   };
-  // }, [htmlDoc?.body.innerHTML, template]);
+    // Cleanup function to cancel pending debounced calls
+    return () => {
+      debounceSave.cancel();
+    };
+  }, [exportDoc?.body.innerHTML, template]);
 
   return {
     containerVariants,

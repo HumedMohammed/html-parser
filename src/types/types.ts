@@ -11,6 +11,16 @@ export interface TextNode {
   label?: string;
 }
 
+export interface FilterState {
+  search: string;
+  dateRange: string;
+  creator: string;
+  minEdits: number | null;
+  maxEdits: number | null;
+  sortBy: string;
+  sortOrder: "asc" | "desc";
+  user: string;
+}
 export interface Template {
   id: string;
   thumbnail: string;
