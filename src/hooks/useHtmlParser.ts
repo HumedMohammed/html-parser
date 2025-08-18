@@ -11,7 +11,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 type Props = {
-  template: Template | undefined;
+  template: Partial<Template> | undefined;
 };
 
 type UpdateValue = {
@@ -83,34 +83,41 @@ export const useHtmlParser = ({ template }: Props) => {
         const exportParentElement = exportTextNode.parentElement;
 
         if (parentElement && exportParentElement) {
-          // Create a wrapper span for the text node to make it identifiable
-          const wrapper = doc.createElement("span");
-          const exportWrapper = exportDocCopy.createElement("span");
+          // Check if the text node is a direct child of body or has no proper parent
+          const needsWrapper =
+            parentElement.tagName.toLowerCase() === "body" ||
+            parentElement.tagName.toLowerCase() === "html";
 
-          // Set attributes on the wrapper instead of parent
-          wrapper.setAttribute("data-text-id", id);
-          wrapper.style.display = "contents"; // This makes the span invisible but keeps the text flow
-          exportWrapper.setAttribute("data-text-id", id);
-          exportWrapper.style.display = "contents";
+          let targetElement = parentElement;
+          let exportTargetElement = exportParentElement;
 
-          // Store reference to the original text node in the wrapper
-          wrapper.setAttribute("data-original-text", textNode.nodeValue || "");
-          exportWrapper.setAttribute(
-            "data-original-text",
-            exportTextNode.nodeValue || ""
-          );
+          if (needsWrapper) {
+            // Create a wrapper span only if the text node doesn't have a proper parent
+            const wrapper = doc.createElement("span");
+            const exportWrapper = exportDocCopy.createElement("span");
 
-          // Wrap the text node
-          textNode.parentNode?.insertBefore(wrapper, textNode);
-          textNode.parentNode?.removeChild(textNode);
-          wrapper.appendChild(textNode);
+            wrapper.style.display = "contents"; // This makes the span invisible but keeps the text flow
+            exportWrapper.style.display = "contents";
 
-          exportTextNode.parentNode?.insertBefore(
-            exportWrapper,
-            exportTextNode
-          );
-          exportTextNode.parentNode?.removeChild(exportTextNode);
-          exportWrapper.appendChild(exportTextNode);
+            // Wrap the text node
+            textNode.parentNode?.insertBefore(wrapper, textNode);
+            textNode.parentNode?.removeChild(textNode);
+            wrapper.appendChild(textNode);
+
+            exportTextNode.parentNode?.insertBefore(
+              exportWrapper,
+              exportTextNode
+            );
+            exportTextNode.parentNode?.removeChild(exportTextNode);
+            exportWrapper.appendChild(exportTextNode);
+
+            targetElement = wrapper;
+            exportTargetElement = exportWrapper;
+          }
+
+          // Set the data attribute on the target element (either the existing parent or the new wrapper)
+          targetElement.setAttribute("data-text-id", id);
+          exportTargetElement.setAttribute("data-text-id", id);
 
           // Generate a meaningful label
           const tagName = parentElement.tagName.toLowerCase();
@@ -124,7 +131,9 @@ export const useHtmlParser = ({ template }: Props) => {
 
           // Add position info for mixed content
           const siblings = Array.from(parentElement.childNodes);
-          const textIndex = siblings.findIndex((node) => node === wrapper);
+          const textIndex = siblings.findIndex((node) =>
+            needsWrapper ? node === targetElement : node === textNode
+          );
           if (siblings.length > 1) {
             label += ` [${textIndex + 1}/${siblings.length}]`;
           }
@@ -182,10 +191,10 @@ export const useHtmlParser = ({ template }: Props) => {
   };
 
   useEffect(() => {
-    if (template) {
-      setHtmlInput(template?.template?.value);
-      setTemplateName(template?.name);
-      parseHtml(template?.template?.value);
+    if (template?.template) {
+      setHtmlInput(template?.template?.value as string);
+      setTemplateName(template?.name as string);
+      parseHtml(template?.template?.value as string);
     }
   }, [template]);
   // Get styles from the document head
@@ -224,7 +233,9 @@ export const useHtmlParser = ({ template }: Props) => {
 
           if (wrapper) {
             // Get the parent element for highlighting since wrapper is invisible
-            const parentElement = wrapper.parentElement as HTMLElement;
+            console.log("========>", wrapper.nodeName);
+            const parentElement =
+              wrapper.nodeName == "#text" ? wrapper.parentElement : wrapper;
 
             if (parentElement) {
               const rect = parentElement.getBoundingClientRect();
@@ -244,7 +255,6 @@ export const useHtmlParser = ({ template }: Props) => {
               const originalBorderRadius = parentElement.style.borderRadius;
               const originalOutlineOffset = parentElement.style.outlineOffset;
 
-              parentElement.style.transition = "all 0.3s ease";
               parentElement.style.outline = "2px solid rgba(59, 130, 246, 0.8)";
               parentElement.style.outlineOffset = "2px";
 
@@ -260,38 +270,35 @@ export const useHtmlParser = ({ template }: Props) => {
     }
   };
   // Handle text change
-  const handleTextChange = debounce(
-    useCallback(
-      (id: string, newValue: string) => {
-        const newTexts = texts.map((t) =>
-          t.id === id ? { ...t, value: newValue } : t
+  const handleTextChange = useCallback(
+    (id: string, newValue: string) => {
+      // Update texts state immediately (no debounce for UI responsiveness)
+      const newTexts = texts.map((t) =>
+        t.id === id ? { ...t, value: newValue } : t
+      );
+      setTexts(newTexts);
+
+      // Update the export document immediately
+      if (exportDoc) {
+        const exportWrapper = exportDoc.querySelector(`[data-text-id="${id}"]`);
+        if (exportWrapper && exportWrapper.firstChild) {
+          exportWrapper.firstChild.nodeValue = newValue;
+        }
+      }
+
+      // Update the iframe content immediately
+      if (iframeRef.current && iframeRef.current.contentDocument) {
+        const iframeWrapper = iframeRef.current.contentDocument.querySelector(
+          `[data-text-id="${id}"]`
         );
-        setTexts(newTexts);
-
-        // Update the export document
-        if (exportDoc) {
-          const exportWrapper = exportDoc.querySelector(
-            `[data-text-id="${id}"]`
-          );
-          if (exportWrapper && exportWrapper.firstChild) {
-            exportWrapper.firstChild.nodeValue = newValue;
-          }
+        if (iframeWrapper && iframeWrapper.firstChild) {
+          iframeWrapper.firstChild.nodeValue = newValue;
         }
+      }
 
-        // Update the iframe content
-        if (iframeRef.current && iframeRef.current.contentDocument) {
-          const iframeWrapper = iframeRef.current.contentDocument.querySelector(
-            `[data-text-id="${id}"]`
-          );
-          if (iframeWrapper && iframeWrapper.firstChild) {
-            iframeWrapper.firstChild.nodeValue = newValue;
-          }
-        }
-
-        setActiveTextId(id);
-      },
-      [exportDoc, texts]
-    )
+      setActiveTextId(id);
+    },
+    [exportDoc, texts]
   );
 
   // Handle paste from clipboard
@@ -371,6 +378,7 @@ export const useHtmlParser = ({ template }: Props) => {
     setError("");
     setHtmlInput("");
     navigate("/editor");
+    setTemplateName("Untitled");
   };
 
   const updateTemplate = async (valueToUpdate: Partial<UpdateValue>) => {
@@ -405,13 +413,15 @@ export const useHtmlParser = ({ template }: Props) => {
   useEffect(() => {
     // Only save if template exists
     const debounceSave = debounce((value: string) => {
-      updateTemplate({
-        template: {
-          ...(template?.template ?? {}),
-          value,
-          original: template?.template?.original,
-        },
-      });
+      if (exportDoc) {
+        updateTemplate({
+          template: {
+            ...(template?.template ?? {}),
+            value,
+            original: template?.template?.original,
+          },
+        });
+      }
     }, 500);
     const templateValue = `<!DOCTYPE html>
                             <html>
@@ -432,7 +442,7 @@ export const useHtmlParser = ({ template }: Props) => {
     return () => {
       debounceSave.cancel();
     };
-  }, [exportDoc?.body.innerHTML, template]);
+  }, [exportDoc?.body.innerHTML, JSON.stringify(template)]);
 
   return {
     containerVariants,

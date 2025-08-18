@@ -59,8 +59,8 @@ export function Editor() {
     templateName,
     saving,
     savingSuccess,
-    handleTextChange,
     duplicating,
+    handleTextChange,
     exportHtml,
     handlePasteFromClipboard,
     handleTextFocus,
@@ -73,7 +73,7 @@ export function Editor() {
     htmlStringToCopy,
     duplicate,
   } = useHtmlParser({
-    template: data,
+    template: templateId ? data : {},
   });
 
   if (gettingTemplate) {
@@ -154,7 +154,9 @@ export function Editor() {
                 name: value,
               });
             }}
-            handleCreateNew={handleCreateNew}
+            handleCreateNew={() => {
+              handleCreateNew();
+            }}
             saving={saving}
             savingSuccess={savingSuccess}
             onDuplicate={() => {
@@ -275,6 +277,7 @@ export function Editor() {
                               </Badge>
                             </div>
                             <Textarea
+                              key={text.id}
                               id={text.id}
                               value={text.value}
                               onChange={(e) =>
