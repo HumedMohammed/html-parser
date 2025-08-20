@@ -15,6 +15,7 @@ import { db } from "@/utils/pockatbase";
 import { TemplateCard } from "@/components/DashboardComponents/TemplateCard";
 import { TemplateTable } from "@/components/DashboardComponents/TemplateTable";
 import { FilterPanel } from "@/components/DashboardComponents/FilterPanel";
+import { PublicLinkModal } from "@/components/PublicLinkModal";
 import { Link, useNavigate } from "react-router-dom";
 import type { Actions, FilterState, Template } from "@/types/types";
 import { toast } from "sonner";
@@ -26,6 +27,11 @@ export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [showFilters, setShowFilters] = useState(false);
+  const [showPublicLinkModal, setShowPublicLinkModal] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    null
+  );
+  const [generatingPublicLink, setGeneratingPublicLink] = useState(false);
   const [duplicate, { isLoading: duplicating }] =
     useDuplicateTemplateMutation();
   const [filters, setFilters] = useState<FilterState>({
@@ -71,7 +77,6 @@ export const Dashboard: React.FC = () => {
   const handleTemplateAction = async (action: Actions, templateId: string) => {
     switch (action) {
       case "edit":
-        // Navigate to edit page
         console.log("Edit template:", templateId);
         navigate(`/template/editor/${templateId}`);
         break;
@@ -85,7 +90,8 @@ export const Dashboard: React.FC = () => {
         await handleCopPublicLink(templateId);
         break;
       case "create_public_link":
-        await handleGeneratePublicUrl(templateId);
+        setSelectedTemplateId(templateId);
+        setShowPublicLinkModal(true);
         break;
     }
   };
@@ -94,8 +100,12 @@ export const Dashboard: React.FC = () => {
     try {
       await db.collection("templates").delete(templateId);
       setTemplates(templates.filter((t) => t.id !== templateId));
+      toast("Template deleted successfully");
     } catch (error) {
       console.error("Failed to delete template:", error);
+      toast("Failed to delete template", {
+        className: "bg-red-500 text-white",
+      });
     }
   };
 
@@ -122,18 +132,83 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const handleGeneratePublicUrl = async (templateId: string) => {
-    // Generate public URL logic
-    const publicUrl = `${window.location.origin}/template/${templateId}`;
-    navigator.clipboard.writeText(publicUrl);
-    // Show toast notification
+  const calculateExpirationDate = (expireTime: string): Date | null => {
+    if (expireTime === "never") return null;
+
+    const now = new Date();
+    const match = expireTime.match(/(\d+)([hdm])/);
+
+    if (!match) return null;
+
+    const [, amount, unit] = match;
+    const value = parseInt(amount);
+
+    switch (unit) {
+      case "h":
+        return new Date(now.getTime() + value * 60 * 60 * 1000);
+      case "d":
+        return new Date(now.getTime() + value * 24 * 60 * 60 * 1000);
+      case "m":
+        return new Date(now.getTime() + value * 30 * 24 * 60 * 60 * 1000);
+      default:
+        return null;
+    }
   };
+
+  const handleGeneratePublicUrl = async (expireTime: string) => {
+    if (!selectedTemplateId) return;
+
+    try {
+      setGeneratingPublicLink(true);
+
+      const publicLink = `${window.location.origin}/public/${selectedTemplateId}`;
+      const expireDate = calculateExpirationDate(expireTime);
+
+      // Update the template with public link and expiration
+      await db.collection("templates").update(selectedTemplateId, {
+        publicLink,
+        expireTime: expireDate?.toISOString() || null,
+      });
+
+      // Update local state
+      setTemplates(
+        templates.map((template) =>
+          template.id === selectedTemplateId
+            ? {
+                ...template,
+                publicLink,
+                expireTime: expireDate?.toISOString() || null,
+              }
+            : template
+        )
+      );
+
+      toast("Public link generated successfully!", {
+        description: "The link has been created and is ready to share.",
+      });
+      return publicLink;
+    } catch (error) {
+      console.error("Failed to generate public link:", error);
+      toast("Failed to generate public link", {
+        className: "bg-red-500 text-white",
+        description: "Please try again later.",
+      });
+    } finally {
+      setGeneratingPublicLink(false);
+    }
+  };
+
   const handleCopPublicLink = (templateId: string) => {
     const template = templates.find((t) => t.id === templateId);
-    // Copy to clipboard
-    navigator.clipboard.writeText(template?.publicLink ?? "");
-    // Show toast notification
-    toast("Link copied successfully");
+    if (template?.publicLink) {
+      navigator.clipboard.writeText(template.publicLink);
+      toast("Link copied successfully");
+    } else {
+      toast("No public link available", {
+        description: "Generate a public link first.",
+        className: "bg-orange-500 text-white",
+      });
+    }
   };
 
   const containerVariants = {
@@ -262,59 +337,67 @@ export const Dashboard: React.FC = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+          className="space-y-6"
         >
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-64 bg-white dark:bg-gray-800 rounded-xl animate-pulse"
-                />
-              ))}
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
+          ) : templates.length === 0 ? (
+            <motion.div variants={itemVariants} className="text-center py-12">
+              <div className="max-w-md mx-auto">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                  <Plus className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  No templates found
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  {filters.search
+                    ? "No templates match your search criteria."
+                    : "Get started by creating your first template."}
+                </p>
+                <Link to="/template/editor">
+                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Template
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {templates.map((template) => (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  onAction={handleTemplateAction}
-                  duplicating={duplicating}
-                />
+                <motion.div key={template.id} variants={itemVariants}>
+                  <TemplateCard
+                    template={template}
+                    onAction={handleTemplateAction}
+                    duplicating={duplicating}
+                  />
+                </motion.div>
               ))}
             </div>
           ) : (
-            <TemplateTable
-              templates={templates}
-              onAction={handleTemplateAction}
-              duplicating={duplicating}
-            />
-          )}
-
-          {!loading && templates.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-16"
-            >
-              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full flex items-center justify-center">
-                <Grid3X3 className="w-12 h-12 text-blue-500" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                No templates found
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Edit your first template to get started
-              </p>
-              <Link to="/template/editor">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Start Editing
-                </Button>
-              </Link>
+            <motion.div variants={itemVariants}>
+              <TemplateTable
+                templates={templates}
+                onAction={handleTemplateAction}
+                duplicating={duplicating}
+              />
             </motion.div>
           )}
         </motion.div>
+
+        {/* Public Link Modal */}
+        <PublicLinkModal
+          isOpen={showPublicLinkModal}
+          onClose={() => {
+            setShowPublicLinkModal(false);
+            setSelectedTemplateId(null);
+          }}
+          onGenerate={handleGeneratePublicUrl}
+          isLoading={generatingPublicLink}
+        />
       </div>
     </div>
   );
