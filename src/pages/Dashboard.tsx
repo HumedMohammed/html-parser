@@ -20,6 +20,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Actions, FilterState, Template } from "@/types/types";
 import { toast } from "sonner";
 import { useDuplicateTemplateMutation } from "./Editor/services";
+import { v4 } from "uuid";
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -160,14 +161,15 @@ export const Dashboard: React.FC = () => {
 
     try {
       setGeneratingPublicLink(true);
-
-      const publicLink = `${window.location.origin}/public/${selectedTemplateId}`;
+      const token = v4();
+      const publicLink = `${window.location.origin}/public/${selectedTemplateId}?token=${token}`;
       const expireDate = calculateExpirationDate(expireTime);
 
       // Update the template with public link and expiration
       await db.collection("templates").update(selectedTemplateId, {
         publicLink,
         expireTime: expireDate?.toISOString() || null,
+        publicLinkToken: token,
       });
 
       // Update local state

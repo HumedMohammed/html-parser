@@ -54,6 +54,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/public/:templateId" element={<Editor />} />
         <Route
           path="/dashboard"
           element={
