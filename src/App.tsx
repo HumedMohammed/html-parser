@@ -33,13 +33,21 @@ const App: React.FC = () => {
       </div>
     );
   }
-
+  // TODO:- Please use separate route for edit and create
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route
-          path="/editor"
+          path="/template/editor"
+          element={
+            <ProtectedRoute>
+              <Editor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/template/editor/:templateId"
           element={
             <ProtectedRoute>
               <Editor />

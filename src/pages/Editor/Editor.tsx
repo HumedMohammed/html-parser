@@ -28,14 +28,13 @@ import { cn } from "@/lib/utils";
 import { useHtmlParser } from "@/hooks/useHtmlParser";
 import { EditorNavigation } from "./EditorNavigation";
 import { useGetSingleTemplateQuery } from "./services";
-import { useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { LoadingPage } from "@/components/shared/LoadingPage";
 import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
 import { toast } from "sonner";
 
 export function Editor() {
-  const [searchParam, setSearchParam] = useSearchParams();
-  const templateId = searchParam.get("templateId");
+  const { templateId } = useParams();
   const { data, isLoading: gettingTemplate } = useGetSingleTemplateQuery(
     templateId as string,
     {
@@ -72,6 +71,7 @@ export function Editor() {
     setTemplateName,
     htmlStringToCopy,
     duplicate,
+    navigate,
   } = useHtmlParser({
     template: templateId ? data : {},
   });
@@ -164,8 +164,7 @@ export function Editor() {
                 duplicate(templateId as string).then((res) => {
                   if (res.data) {
                     toast("Template duplicated successfully");
-                    searchParam.set("templateId", res.data.id);
-                    setSearchParam(searchParam);
+                    navigate(`/template/editor/${res.data.id}`);
                   }
                 });
               } else {

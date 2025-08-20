@@ -267,7 +267,7 @@ export const LandingPage = () => {
               size="lg"
               className="text-lg px-10 py-7 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              <Link to="/editor" className="flex items-center gap-3">
+              <Link to="/template/editor" className="flex items-center gap-3">
                 <Play className="w-5 h-5" />
                 Try Live Demo
                 <ArrowRight className="w-5 h-5" />
@@ -604,7 +604,7 @@ export const LandingPage = () => {
                 size="lg"
                 className="text-lg px-12 py-7 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                <Link to="/editor" className="flex items-center gap-3">
+                <Link to="/template/editor" className="flex items-center gap-3">
                   <Sparkles className="w-5 h-5" />
                   Start Free Trial
                   <ArrowRight className="w-5 h-5" />

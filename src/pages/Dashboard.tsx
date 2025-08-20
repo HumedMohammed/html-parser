@@ -18,6 +18,7 @@ import { FilterPanel } from "@/components/DashboardComponents/FilterPanel";
 import { Link, useNavigate } from "react-router-dom";
 import type { Actions, FilterState, Template } from "@/types/types";
 import { toast } from "sonner";
+import { useDuplicateTemplateMutation } from "./Editor/services";
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [showFilters, setShowFilters] = useState(false);
+  const [duplicate, { isLoading: duplicating }] =
+    useDuplicateTemplateMutation();
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     sortBy: "updated",
@@ -70,7 +73,7 @@ export const Dashboard: React.FC = () => {
       case "edit":
         // Navigate to edit page
         console.log("Edit template:", templateId);
-        navigate(`/editor?templateId=${templateId}`);
+        navigate(`/template/editor/${templateId}`);
         break;
       case "delete":
         await handleDeleteTemplate(templateId);
@@ -100,21 +103,21 @@ export const Dashboard: React.FC = () => {
     try {
       const template = templates.find((t) => t.id === templateId);
       if (template) {
-        const newTemplate = {
-          ...template.template,
-          name: `${template.name} (Copy)`,
-        };
-
-        await db.collection("templates").create({
-          template: newTemplate,
-          values: template.values,
-          thumbnail: template.thumbnail,
-          user: db.authStore.model?.id,
+        await duplicate(template.id).then((res) => {
+          if (res.data) {
+            navigate(`/template/editor/${res.data.id}`);
+            fetchTemplates();
+          } else {
+            toast("Failed to duplicate template", {
+              className: "bg-red-500 text-white",
+            });
+          }
         });
-
-        fetchTemplates();
       }
     } catch (error) {
+      toast("Failed to duplicate template", {
+        className: "bg-red-500 text-white",
+      });
       console.error("Failed to copy template:", error);
     }
   };
@@ -166,7 +169,7 @@ export const Dashboard: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-            <Link to="/editor">
+            <Link to="/template/editor">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 New Template
@@ -276,6 +279,7 @@ export const Dashboard: React.FC = () => {
                   key={template.id}
                   template={template}
                   onAction={handleTemplateAction}
+                  duplicating={duplicating}
                 />
               ))}
             </div>
@@ -283,6 +287,7 @@ export const Dashboard: React.FC = () => {
             <TemplateTable
               templates={templates}
               onAction={handleTemplateAction}
+              duplicating={duplicating}
             />
           )}
 
@@ -301,7 +306,7 @@ export const Dashboard: React.FC = () => {
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Edit your first template to get started
               </p>
-              <Link to="/editor">
+              <Link to="/template/editor">
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Start Editing

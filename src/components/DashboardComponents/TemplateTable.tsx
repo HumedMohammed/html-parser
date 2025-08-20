@@ -21,14 +21,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import type { Actions, Template } from "@/types/types";
 import { getFilePreview } from "@/utils";
+import { LoadingCircle } from "../icons";
 
 interface TemplateTableProps {
   templates: Template[];
   onAction: (action: Actions, templateId: string) => void;
+  duplicating: boolean;
 }
 
 export const TemplateTable: React.FC<TemplateTableProps> = ({
   templates,
+  duplicating,
   onAction,
 }) => {
   const formatDate = (dateString: string) => {
@@ -156,7 +159,11 @@ export const TemplateTable: React.FC<TemplateTableProps> = ({
                       <DropdownMenuItem
                         onClick={() => onAction("copy", template.id)}
                       >
-                        <Copy className="w-4 h-4 mr-2" />
+                        {duplicating ? (
+                          <LoadingCircle />
+                        ) : (
+                          <Copy className="w-4 h-4 mr-2" />
+                        )}
                         Duplicate
                       </DropdownMenuItem>
                       <DropdownMenuItem

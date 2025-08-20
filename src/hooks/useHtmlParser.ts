@@ -7,7 +7,7 @@ import type { Template, TextNode } from "@/types/types";
 import { db } from "@/utils/pockatbase";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 type Props = {
@@ -18,7 +18,6 @@ type UpdateValue = {
   [key in keyof Template]: any;
 };
 export const useHtmlParser = ({ template }: Props) => {
-  const [searchParam, setSearchParam] = useSearchParams();
   const [htmlInput, setHtmlInput] = useState("");
   const [templateName, setTemplateName] = useState("Untitled");
   const [htmlDoc, setHtmlDoc] = useState<Document | null>(null);
@@ -163,7 +162,7 @@ export const useHtmlParser = ({ template }: Props) => {
       }, 5000);
 
       // New template
-      if (!template?.id) {
+      if (!template?.id && db.authStore.record?.id) {
         const valueToUpdate: Partial<Template> = {
           values: { texts: foundTexts },
           template: {
@@ -178,8 +177,9 @@ export const useHtmlParser = ({ template }: Props) => {
 
         saveTemplate(valueToUpdate).then((res) => {
           if (res.data) {
-            searchParam.set("templateId", res?.data?.id);
-            setSearchParam(searchParam);
+            // searchParam.set("templateId", res?.data?.id);
+            // setSearchParam(searchParam);
+            navigate(`/template/editor/${res?.data?.id}`);
           }
         });
       }
@@ -377,12 +377,18 @@ export const useHtmlParser = ({ template }: Props) => {
     setSuccess("");
     setError("");
     setHtmlInput("");
-    navigate("/editor");
     setTemplateName("Untitled");
+    navigate("/template/editor");
+    setExportDoc(null);
+    setActiveTextId(null);
+    setError("");
+    setIsLoading(false);
   };
 
   const updateTemplate = async (valueToUpdate: Partial<UpdateValue>) => {
-    saveTemplate({ ...template, ...valueToUpdate });
+    if (template?.user) {
+      saveTemplate({ ...template, ...valueToUpdate });
+    }
   };
 
   const htmlStringToCopy = () => {
@@ -413,7 +419,7 @@ export const useHtmlParser = ({ template }: Props) => {
   useEffect(() => {
     // Only save if template exists
     const debounceSave = debounce((value: string) => {
-      if (exportDoc) {
+      if (exportDoc && db.authStore.record?.id) {
         updateTemplate({
           template: {
             ...(template?.template ?? {}),
@@ -442,7 +448,11 @@ export const useHtmlParser = ({ template }: Props) => {
     return () => {
       debounceSave.cancel();
     };
-  }, [exportDoc?.body.innerHTML, JSON.stringify(template)]);
+  }, [
+    exportDoc?.body.innerHTML,
+    JSON.stringify(template),
+    db.authStore.record?.id,
+  ]);
 
   return {
     containerVariants,
@@ -478,5 +488,6 @@ export const useHtmlParser = ({ template }: Props) => {
     setTemplateName,
     htmlStringToCopy,
     duplicate,
+    navigate,
   };
 };

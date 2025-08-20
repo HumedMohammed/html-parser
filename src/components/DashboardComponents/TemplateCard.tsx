@@ -21,14 +21,17 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Actions, Template } from "@/types/types";
 import { getFilePreview } from "@/utils";
+import { LoadingCircle } from "../icons";
 
 interface TemplateCardProps {
   template: Template;
   onAction: (action: Actions, templateId: string) => void;
+  duplicating: boolean;
 }
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
   template,
+  duplicating,
   onAction,
 }) => {
   const formatDate = (dateString: string) => {
@@ -106,7 +109,11 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                   <DropdownMenuItem
                     onClick={() => onAction("copy", template.id)}
                   >
-                    <Copy className="w-4 h-4 mr-2" />
+                    {duplicating ? (
+                      <LoadingCircle />
+                    ) : (
+                      <Copy className="w-4 h-4 mr-2" />
+                    )}
                     Duplicate
                   </DropdownMenuItem>
                   {template.publicLink ? (
