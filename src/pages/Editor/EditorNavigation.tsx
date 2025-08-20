@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Copy,
@@ -106,14 +105,6 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 px-6 py-4"
       >
-        {isEditing && (
-          <Badge
-            variant="secondary"
-            className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 absolute top-1 right-1"
-          >
-            Editing
-          </Badge>
-        )}
         <div className="flex flex-col w-full gap-2 text-sm text-muted-foreground">
           <AnimatePresence mode="wait">
             {saving && (
