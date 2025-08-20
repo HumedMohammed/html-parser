@@ -34,6 +34,8 @@ interface EditorNavigationProps {
   saving: boolean;
   savingSuccess: boolean;
   duplicating: boolean;
+  isPublicView: boolean;
+  isDeleting: boolean;
   onNameChange?: (name: string) => void;
   onDuplicate?: () => void;
   onShare?: () => void;
@@ -50,6 +52,8 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
   saving,
   savingSuccess,
   duplicating,
+  isPublicView,
+  isDeleting,
   setTemplateName,
   onNameChange,
   onDuplicate,
@@ -102,6 +106,14 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 px-6 py-4"
       >
+        {isEditing && (
+          <Badge
+            variant="secondary"
+            className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 absolute top-1 right-1"
+          >
+            Editing
+          </Badge>
+        )}
         <div className="flex flex-col w-full gap-2 text-sm text-muted-foreground">
           <AnimatePresence mode="wait">
             {saving && (
@@ -145,152 +157,152 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
               />
               <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 transition-opacity duration-200 focus-within:opacity-100" />
             </div>
-
-            {isEditing && (
-              <Badge
-                variant="secondary"
-                className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-              >
-                Editing
-              </Badge>
-            )}
           </div>
 
           {/* Right Section - Actions */}
-          <div className="flex items-center space-x-2">
-            {/* Duplicate Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onDuplicate}
-              className="hidden sm:flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              {duplicating ? <LoadingCircle /> : <Copy className="w-4 h-4" />}
-              <span>Duplicate</span>
-            </Button>
-
-            {/* Share/Create Public Link Button */}
+          {!isPublicView && (
             <div className="flex items-center space-x-2">
+              {/* Duplicate Button */}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleShareAction}
+                onClick={onDuplicate}
                 className="hidden sm:flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                {publicLink ? (
-                  <>
-                    <Share2 className="w-4 h-4" />
-                    <span>Share</span>
-                  </>
-                ) : (
-                  <>
-                    <LinkIcon className="w-4 h-4" />
-                    <span>Create Link</span>
-                  </>
-                )}
+                {duplicating ? <LoadingCircle /> : <Copy className="w-4 h-4" />}
+                <span>Duplicate</span>
               </Button>
 
-              {/* Copy Link Button (only if public link exists) */}
-              {publicLink && (
+              {/* Share/Create Public Link Button */}
+              <div className="flex items-center space-x-2">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  onClick={handleCopyLink}
+                  onClick={handleShareAction}
                   className="hidden sm:flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-green-500">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <ExternalLink className="w-4 h-4" />
-                      <span>Copy Link</span>
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-
-            {/* Delete Button (only if editing) */}
-            {isEditing && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onDelete}
-                className="hidden sm:flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Delete</span>
-              </Button>
-            )}
-
-            <Button
-              onClick={handleCreateNew}
-              variant="outline"
-              size="sm"
-              className="hidden sm:flex  items-center gap-1 w-auto grow"
-            >
-              <Plus className="w-4 h-4" />
-              Create New
-            </Button>
-            {/* Mobile Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="sm:hidden h-8 w-8 p-0"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={onDuplicate}>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Duplicate Template
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={handleShareAction}>
                   {publicLink ? (
                     <>
-                      <Share2 className="w-4 h-4 mr-2" />
-                      Share Public Link
+                      <Share2 className="w-4 h-4" />
+                      <span>Share</span>
                     </>
                   ) : (
                     <>
-                      <LinkIcon className="w-4 h-4 mr-2" />
-                      Create Public Link
+                      <LinkIcon className="w-4 h-4" />
+                      <span>Create Link</span>
                     </>
                   )}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleCreateNew}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create New
-                </DropdownMenuItem>
-                {publicLink && (
-                  <DropdownMenuItem onClick={handleCopyLink}>
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    {copied ? "Copied!" : "Copy Link"}
-                  </DropdownMenuItem>
-                )}
+                </Button>
 
-                {isEditing && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={onDelete}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Template
-                    </DropdownMenuItem>
-                  </>
+                {/* Copy Link Button (only if public link exists) */}
+                {publicLink && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopyLink}
+                    className="hidden sm:flex items-center space-x-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span className="text-green-500">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Copy Link</span>
+                      </>
+                    )}
+                  </Button>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              </div>
+
+              <Button
+                onClick={handleCreateNew}
+                variant="outline"
+                size="sm"
+                className="hidden sm:flex  items-center gap-1 w-auto grow"
+              >
+                <Plus className="w-4 h-4" />
+                Create New
+              </Button>
+              {/* Delete Button (only if editing) */}
+              {isEditing && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onDelete}
+                  className="hidden sm:flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
+                >
+                  {isDeleting ? (
+                    <LoadingCircle />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  <span>Delete</span>
+                </Button>
+              )}
+              {/* Mobile Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="sm:hidden h-8 w-8 p-0"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={onDuplicate}>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Duplicate Template
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem onClick={handleShareAction}>
+                    {publicLink ? (
+                      <>
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share Public Link
+                      </>
+                    ) : (
+                      <>
+                        <LinkIcon className="w-4 h-4 mr-2" />
+                        Create Public Link
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCreateNew}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create New
+                  </DropdownMenuItem>
+                  {publicLink && (
+                    <DropdownMenuItem onClick={handleCopyLink}>
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      {copied ? "Copied!" : "Copy Link"}
+                    </DropdownMenuItem>
+                  )}
+
+                  {isEditing && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={onDelete}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        {isDeleting ? (
+                          <LoadingCircle />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" />
+                        )}
+                        Delete Template
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
 
         {/* Public Link Display (if exists) */}

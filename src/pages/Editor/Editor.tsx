@@ -19,7 +19,6 @@ import {
   FileText,
   Sparkles,
   RefreshCw,
-  CheckCircle,
   AlertCircle,
   Copy,
   Download,
@@ -32,8 +31,16 @@ import { useParams } from "react-router-dom";
 import { LoadingPage } from "@/components/shared/LoadingPage";
 import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
 import { toast } from "sonner";
+import { useMemo } from "react";
+import { db } from "@/utils/pockatbase";
+import { useDisclosure } from "@/hooks/useDisclosure";
 
 export function Editor() {
+  const deleteControl = useDisclosure();
+  const isPublicView = useMemo(
+    () => window.location.pathname.includes("/public"),
+    []
+  );
   const { templateId } = useParams();
   const { data, isLoading: gettingTemplate } = useGetSingleTemplateQuery(
     templateId as string,
@@ -53,7 +60,6 @@ export function Editor() {
     iframeRef,
     isLoading,
     itemVariants,
-    success,
     texts,
     templateName,
     saving,
@@ -107,22 +113,6 @@ export function Editor() {
               </Alert>
             </motion.div>
           )}
-
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-6"
-            >
-              <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-700 dark:text-green-300">
-                  {success}
-                </AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
         </AnimatePresence>
         {/* Header */}
         {!htmlInput ? (
@@ -172,6 +162,26 @@ export function Editor() {
               }
             }}
             duplicating={duplicating}
+            isPublicView={isPublicView}
+            isEditing={Boolean(templateId)}
+            isDeleting={deleteControl.isOpen}
+            onDelete={async () => {
+              try {
+                if (templateId) {
+                  deleteControl.onOpen();
+                  await db.collection("templates").delete(templateId);
+                  toast("Template deleted successfully");
+                  navigate("/dashboard");
+                }
+              } catch (error) {
+                console.error("Failed to delete template:", error);
+                toast("Failed to delete template", {
+                  className: "bg-red-500 text-white",
+                });
+              } finally {
+                deleteControl.onClose();
+              }
+            }}
           />
         )}
 
