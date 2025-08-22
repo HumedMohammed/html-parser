@@ -34,6 +34,8 @@ import { toast } from "sonner";
 import { useMemo } from "react";
 import { db } from "@/utils/pockatbase";
 import { useDisclosure } from "@/hooks/useDisclosure";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImageEditor } from "./ImageEditor";
 
 export function Editor() {
   const deleteControl = useDisclosure();
@@ -65,6 +67,7 @@ export function Editor() {
     saving,
     savingSuccess,
     duplicating,
+    exportDoc,
     handleTextChange,
     exportHtml,
     handlePasteFromClipboard,
@@ -242,72 +245,88 @@ export function Editor() {
         {htmlDoc && texts.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Text Editor Panel */}
-            <motion.div variants={itemVariants}>
-              <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 border-0 shadow-md h-fit">
-                <CardHeader>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
-                      Text Elements
-                    </CardTitle>
-                    <Badge
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      <Sparkles className="w-3 h-3" />
-                      {texts.length} items
-                    </Badge>
-                  </div>
-                  <CardDescription>
-                    Edit the text content of your HTML elements below
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[400px] sm:h-[600px] pr-0 sm:pr-4">
-                    <div className="space-y-4">
-                      {texts.map((text, index) => (
-                        <motion.div
-                          key={text.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+            <Tabs defaultValue="text">
+              <TabsList>
+                <TabsTrigger value="text">Text Editor</TabsTrigger>
+                <TabsTrigger value="image">Image Editor</TabsTrigger>
+              </TabsList>
+              <TabsContent value="text">
+                <motion.div variants={itemVariants}>
+                  <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 border-0 shadow-md h-fit">
+                    <CardHeader>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <CardTitle className="flex items-center gap-2">
+                          <FileText className="w-5 h-5" />
+                          Text Elements
+                        </CardTitle>
+                        <Badge
+                          variant="secondary"
+                          className="flex items-center gap-1"
                         >
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between flex-wrap gap-1">
-                              <Label
-                                htmlFor={text.id}
-                                className="text-sm font-medium text-muted-foreground"
-                              >
-                                {text.label}
-                              </Label>
-                              <Badge variant="outline" className="text-xs">
-                                #{text.id}
-                              </Badge>
-                            </div>
-                            <Textarea
+                          <Sparkles className="w-3 h-3" />
+                          {texts.length} items
+                        </Badge>
+                      </div>
+                      <CardDescription>
+                        Edit the text content of your HTML elements below
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="h-[400px] sm:h-[600px] pr-0 sm:pr-4">
+                        <div className="space-y-4">
+                          {texts.map((text, index) => (
+                            <motion.div
                               key={text.id}
-                              id={text.id}
-                              value={text.value}
-                              onChange={(e) =>
-                                handleTextChange(text.id, e.target.value)
-                              }
-                              onFocus={() => handleTextFocus(text.id)}
-                              className={cn(
-                                "min-h-[80px] resize-none transition-all duration-200",
-                                activeTextId === text.id &&
-                                  "ring-2 ring-blue-500 ring-offset-2"
-                              )}
-                              placeholder="Enter text content..."
-                            />
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </motion.div>
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between flex-wrap gap-1">
+                                  <Label
+                                    htmlFor={text.id}
+                                    className="text-sm font-medium text-muted-foreground"
+                                  >
+                                    {text.label}
+                                  </Label>
+                                  <Badge variant="outline" className="text-xs">
+                                    #{text.id}
+                                  </Badge>
+                                </div>
+                                <Textarea
+                                  key={text.id}
+                                  id={text.id}
+                                  value={text.value}
+                                  onChange={(e) =>
+                                    handleTextChange(text.id, e.target.value)
+                                  }
+                                  onFocus={() => handleTextFocus(text.id)}
+                                  className={cn(
+                                    "min-h-[80px] resize-none transition-all duration-200",
+                                    activeTextId === text.id &&
+                                      "ring-2 ring-blue-500 ring-offset-2"
+                                  )}
+                                  placeholder="Enter text content..."
+                                />
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
+              <TabsContent value="image">
+                <ImageEditor
+                  exportDoc={exportDoc}
+                  htmlDoc={htmlDoc}
+                  iframeRef={iframeRef}
+                  onImageChange={console.log}
+                />
+              </TabsContent>
+            </Tabs>
 
             {/* Live Preview Panel */}
             <motion.div variants={itemVariants} className="grow">

@@ -469,6 +469,7 @@ export const useHtmlParser = ({ template }: Props) => {
     saving,
     templateName,
     savingSuccess,
+    exportDoc,
     handleTextChange,
     handlePasteFromClipboard,
     exportHtml,
