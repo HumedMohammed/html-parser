@@ -12,6 +12,7 @@ import { ProtectedRoute } from "./routes/ProtectedRoutes";
 import { useAuth } from "./hooks/useAuth";
 import { Dashboard } from "./pages/Dashboard";
 import { Designer } from "./pages/EmailDesigner/EmailDesigner";
+import { ToolsSelection } from "./pages/ToolsSelection/ToolsSelection";
 const App: React.FC = () => {
   const { user, isFetchingUser } = useAuth();
   const { scrollY } = useScroll();
@@ -58,10 +59,18 @@ const App: React.FC = () => {
         <Route path="/designer" element={<Designer />} />
         <Route path="/public/:templateId" element={<Editor />} />
         <Route
-          path="/dashboard"
+          path="/content-templates"
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tools"
+          element={
+            <ProtectedRoute>
+              <ToolsSelection />
             </ProtectedRoute>
           }
         />

@@ -279,9 +279,9 @@ export const LandingPage = () => {
               size="lg"
               className="text-lg px-10 py-7 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300"
             >
-              <Link to="/dashboard" className="flex items-center gap-3">
+              <Link to="/tools" className="flex items-center gap-3">
                 <LayoutDashboard className="w-5 h-5" />
-                Dashboard
+                Tools
               </Link>
             </Button>
           </motion.div>

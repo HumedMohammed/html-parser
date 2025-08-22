@@ -1,44 +1,85 @@
-import React, { useRef } from "react";
-
-import EmailEditor, {
-  type EditorRef,
-  type EmailEditorProps,
-} from "react-email-editor";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { useEffect, useRef } from "react";
+import grapesjs, { Editor } from "grapesjs";
+import "grapesjs/dist/css/grapes.min.css";
+import mjmlPlugin from "grapesjs-mjml";
+import { db } from "@/utils/pockatbase";
 
 export const Designer = () => {
-  const emailEditorRef = useRef<EditorRef>(null);
+  const editorRef = useRef<Editor | null>(null);
 
-  const exportHtml = () => {
-    const unlayer = emailEditorRef.current?.editor;
+  useEffect(() => {
+    if (!editorRef.current) {
+      const editor = grapesjs.init({
+        container: "#gjs",
+        fromElement: false,
+        height: "100vh",
+        width: "100%",
+        plugins: [mjmlPlugin],
+        pluginsOpts: {
+          // @ts-ignore
+          [mjmlPlugin]: {},
+        },
+        storageManager: {
+          type: "pocketbase",
+          autosave: true, // save on changes
+          autoload: true, // load project on init
+          stepsBeforeSave: 1, // save after each change
+        },
+      });
 
-    unlayer?.exportHtml((data) => {
-      const { design, html } = data;
-      console.log("exportHtml", html);
-    });
-  };
+      // 🔥 Register custom PocketBase storage
+      editor.StorageManager.add("pocketbase", {
+        async load() {
+          try {
+            // Example: load the first template of the logged-in user
+            const record = await db
+              .collection("email_designs")
+              .getFirstListItem(`user="${db.authStore.record?.id}"`);
+            try {
+              console.log(record.data);
+              return record?.data || {}; // pass data back to GrapesJS
+            } catch (error) {
+              console.log(error);
+            }
+          } catch (err) {
+            console.error("PB load error", err);
+          }
+        },
 
-  const onReady: EmailEditorProps["onReady"] = (unlayer) => {
-    // editor is ready
-    // you can load your template here;
-    // the design json can be obtained by calling
-    // unlayer.loadDesign(callback) or unlayer.exportHtml(callback)
-    // const templateJson = { DESIGN JSON GOES HERE };
-    // unlayer.loadDesign(templateJson);
-  };
+        async store(data) {
+          try {
+            let record;
+            try {
+              record = await db
+                .collection("email_designs")
+                .getFirstListItem(`user="${db.authStore.record?.id}"`);
+            } catch {
+              record = null;
+            }
+
+            if (record) {
+              await db.collection("email_designs").update(record.id, { data });
+            } else {
+              await db.collection("email_designs").create({
+                user: db.authStore.record?.id,
+                name: "My First Template",
+                data,
+              });
+            }
+          } catch (err) {
+            console.error("PB store error", err);
+          }
+        },
+      });
+
+      editorRef.current = editor;
+    }
+  }, []);
 
   return (
-    <div className="h-full">
-      <div>
-        <button onClick={exportHtml}>Export HTML</button>
-      </div>
-
-      <EmailEditor
-        style={{
-          height: "100vh",
-        }}
-        ref={emailEditorRef}
-        onReady={onReady}
-      />
+    <div className="w-full h-screen flex flex-col">
+      <div id="gjs" className="flex-1"></div>
     </div>
   );
 };
