@@ -163,7 +163,7 @@ export const TemplateNotFound: React.FC<TemplateNotFoundProps> = ({
               transition={{ delay: 0.5, duration: 0.5 }}
               className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700"
             >
-              <Link to="/dashboard">
+              <Link to="/content-templates">
                 <Button>
                   <ArrowLeft />
                   Go back to dashboard

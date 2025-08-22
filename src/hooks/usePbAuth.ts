@@ -24,7 +24,7 @@ export const usePbAuth = () => {
         dispatch(actions.setUser(authData.record));
         setSuccess(true);
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/content-templates");
         }, 1000);
       }
     } catch (error: any) {

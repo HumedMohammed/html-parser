@@ -107,7 +107,7 @@ export const LoginPage: React.FC = () => {
         .authWithPassword(formData.email, formData.password);
       setSuccess(true);
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/content-templates");
       }, 1500);
     } catch (error: any) {
       let errorMessage = "An error occurred during login";

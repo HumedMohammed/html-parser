@@ -413,7 +413,10 @@ export const Navbar: React.FC = () => {
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/dashboard" className="cursor-pointer">
+                        <Link
+                          to="/content-templates"
+                          className="cursor-pointer"
+                        >
                           <User className="mr-2 h-4 w-4" />
                           <span>Dashboard</span>
                         </Link>
@@ -603,7 +606,7 @@ export const Navbar: React.FC = () => {
                       </div>
                     </div>
                     <Link
-                      to="/dashboard"
+                      to="/content-templates"
                       className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >

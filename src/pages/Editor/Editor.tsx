@@ -171,7 +171,7 @@ export function Editor() {
                   deleteControl.onOpen();
                   await db.collection("templates").delete(templateId);
                   toast("Template deleted successfully");
-                  navigate("/dashboard");
+                  navigate("/content-templates");
                 }
               } catch (error) {
                 console.error("Failed to delete template:", error);

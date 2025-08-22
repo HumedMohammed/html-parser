@@ -94,7 +94,7 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Link to="/dashboard">
+      <Link to="/content-templates">
         <Button variant="ghost" className="w-max">
           <ArrowLeft />
           <span>Dashboard</span>
