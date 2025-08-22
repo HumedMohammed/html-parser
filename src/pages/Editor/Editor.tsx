@@ -246,7 +246,7 @@ export function Editor() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Text Editor Panel */}
             <Tabs defaultValue="text">
-              <TabsList>
+              <TabsList className="bg-gray-100 p-1 border h-12 w-full">
                 <TabsTrigger value="text">Text Editor</TabsTrigger>
                 <TabsTrigger value="image">Image Editor</TabsTrigger>
               </TabsList>
@@ -330,7 +330,7 @@ export function Editor() {
 
             {/* Live Preview Panel */}
             <motion.div variants={itemVariants} className="grow">
-              <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 border-0 shadow-md h-fit">
+              <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 border-0 shadow-md h-full">
                 <CardHeader>
                   <div className="flex flex-row items-center justify-between gap-2">
                     <CardTitle className="flex items-center gap-2">
@@ -383,7 +383,7 @@ export function Editor() {
                     See your changes in real-time as you edit
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="grow">
                   <div className="border rounded-lg overflow-hidden">
                     <div className="bg-muted px-3 py-2 border-b">
                       <span className="text-sm font-mono text-muted-foreground">
