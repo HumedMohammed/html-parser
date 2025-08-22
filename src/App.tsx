@@ -11,6 +11,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { ProtectedRoute } from "./routes/ProtectedRoutes";
 import { useAuth } from "./hooks/useAuth";
 import { Dashboard } from "./pages/Dashboard";
+import { Designer } from "./pages/EmailDesigner/EmailDesigner";
 const App: React.FC = () => {
   const { user, isFetchingUser } = useAuth();
   const { scrollY } = useScroll();
@@ -54,6 +55,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/designer" element={<Designer />} />
         <Route path="/public/:templateId" element={<Editor />} />
         <Route
           path="/dashboard"
