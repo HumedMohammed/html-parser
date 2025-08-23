@@ -26,11 +26,13 @@ interface UseImageEditorProps {
   htmlDoc: Document | null;
   exportDoc: Document | null;
   onImageChange?: (imageId: string, newSrc: string) => void;
+  iframeRef: React.RefObject<HTMLIFrameElement | null>;
 }
 
 export const useImageEditor = ({
   htmlDoc,
   exportDoc,
+  iframeRef,
   onImageChange,
 }: UseImageEditorProps) => {
   const [images, setImages] = useState<ImageNode[]>([]);
@@ -250,16 +252,19 @@ export const useImageEditor = ({
 
         if (imageNode.type === "img") {
           // Handle <img> elements
-          const imgElement = htmlDoc.querySelector(
+          const imgElement = iframeRef.current?.contentDocument?.querySelector(
             `[data-image-id="${imageId}"]`
           ) as HTMLImageElement;
           const exportImgElement = exportDoc.querySelector(
             `[data-image-id="${imageId}"]`
           ) as HTMLImageElement;
 
-          if (imgElement && exportImgElement) {
+          if (imgElement) {
             imgElement.src = newSrc;
+          }
+          if (exportImgElement) {
             exportImgElement.src = newSrc;
+            console.log(exportImgElement);
           }
         } else if (imageNode.property === "stylesheet") {
           // Handle images in <style> tags
