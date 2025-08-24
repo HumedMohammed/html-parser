@@ -97,7 +97,7 @@ export const EditorNavigation: React.FC<EditorNavigationProps> = ({
       <Link to="/content-templates" className="w-fit">
         <Button variant="ghost" className="w-fit">
           <ArrowLeft />
-          <span>Dashboard</span>
+          <span>Templates</span>
         </Button>
       </Link>
       <motion.div
