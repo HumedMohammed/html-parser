@@ -13,6 +13,7 @@ import { useAuth } from "./hooks/useAuth";
 import { Dashboard } from "./pages/Dashboard";
 import { Designer } from "./pages/EmailDesigner/EmailDesigner";
 import { ToolsSelection } from "./pages/ToolsSelection/ToolsSelection";
+import { EmailDesignsList } from "./pages/EmailDesignsList/EmailDesignsList";
 const App: React.FC = () => {
   const { user, isFetchingUser } = useAuth();
   const { scrollY } = useScroll();
@@ -56,13 +57,21 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/designer" element={<Designer />} />
+        <Route path="/designer/:templateId" element={<Designer />} />
         <Route path="/public/:templateId" element={<Editor />} />
         <Route
           path="/content-templates"
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/designs"
+          element={
+            <ProtectedRoute>
+              <EmailDesignsList />
             </ProtectedRoute>
           }
         />

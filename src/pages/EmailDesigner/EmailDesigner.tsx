@@ -4,9 +4,11 @@ import grapesjs, { Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
 import mjmlPlugin from "grapesjs-mjml";
 import { db } from "@/utils/pockatbase";
+import { useParams } from "react-router-dom";
 
 export const Designer = () => {
   const editorRef = useRef<Editor | null>(null);
+  const { templateId } = useParams();
 
   useEffect(() => {
     if (!editorRef.current) {
@@ -35,7 +37,7 @@ export const Designer = () => {
             // Example: load the first template of the logged-in user
             const record = await db
               .collection("email_designs")
-              .getFirstListItem(`user="${db.authStore.record?.id}"`);
+              .getOne(templateId || "");
             try {
               console.log(record.data);
               return record?.data || {}; // pass data back to GrapesJS
