@@ -196,6 +196,7 @@ export const useHtmlParser = ({ template }: Props) => {
       setTemplateName(template?.name as string);
       parseHtml(template?.template?.value as string);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [template]);
   // Get styles from the document head
   const getDocumentStyles = () => {
@@ -448,11 +449,41 @@ export const useHtmlParser = ({ template }: Props) => {
     return () => {
       debounceSave.cancel();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     exportDoc?.body.innerHTML,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     JSON.stringify(template),
     db.authStore.record?.id,
   ]);
+
+  const handleImageChange = useCallback(() => {
+    // Force a re-render and save by updating the dependency
+    if (exportDoc && db.authStore.record?.id) {
+      const templateValue = `<!DOCTYPE html>
+                            <html>
+                              <head>
+                                <meta charset="UTF-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <style>
+                                  ${getDocumentStyles()}
+                                </style>
+                              </head>
+                              <body>
+                                ${exportDoc.body.innerHTML}
+                              </body>
+                            </html>`;
+
+      updateTemplate({
+        template: {
+          ...(template?.template ?? {}),
+          value: templateValue,
+          original: template?.template?.original,
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exportDoc, template, db.authStore.record?.id]);
 
   return {
     containerVariants,
@@ -490,5 +521,6 @@ export const useHtmlParser = ({ template }: Props) => {
     htmlStringToCopy,
     duplicate,
     navigate,
+    handleImageChange,
   };
 };

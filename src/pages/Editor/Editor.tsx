@@ -27,17 +27,27 @@ import { cn } from "@/lib/utils";
 import { useHtmlParser } from "@/hooks/useHtmlParser";
 import { EditorNavigation } from "./EditorNavigation";
 import { useGetSingleTemplateQuery } from "./services";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { LoadingPage } from "@/components/shared/LoadingPage";
 import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
 import { toast } from "sonner";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { db } from "@/utils/pockatbase";
 import { useDisclosure } from "@/hooks/useDisclosure";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageEditor } from "./ImageEditor";
 
 export function Editor() {
+  const [tab, setTab] = useState<"text" | "image">("text");
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "image" || tabParam === "text") {
+      setTab(tabParam);
+    } else {
+      setTab("text");
+    }
+  }, [searchParams]);
   const deleteControl = useDisclosure();
   const isPublicView = useMemo(
     () => window.location.pathname.includes("/public"),
@@ -81,6 +91,7 @@ export function Editor() {
     htmlStringToCopy,
     duplicate,
     navigate,
+    handleImageChange,
   } = useHtmlParser({
     template: templateId ? data : {},
   });
@@ -245,7 +256,13 @@ export function Editor() {
         {htmlDoc && texts.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Text Editor Panel */}
-            <Tabs defaultValue="text">
+            <Tabs
+              defaultValue={tab}
+              onValueChange={(value) => {
+                setTab(value as "text" | "image");
+                setSearchParams({ tab: value });
+              }}
+            >
               <TabsList className="bg-gray-100 p-1 border h-12 w-full">
                 <TabsTrigger value="text">Text Editor</TabsTrigger>
                 <TabsTrigger value="image">Image Editor</TabsTrigger>
@@ -323,7 +340,7 @@ export function Editor() {
                   exportDoc={exportDoc}
                   htmlDoc={htmlDoc}
                   iframeRef={iframeRef}
-                  onImageChange={console.log}
+                  onImageChange={handleImageChange}
                 />
               </TabsContent>
             </Tabs>
