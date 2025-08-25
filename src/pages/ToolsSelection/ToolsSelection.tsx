@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -12,10 +11,7 @@ import {
 } from "@/components/ui/card";
 import {
   Mail,
-  Globe,
-  Smartphone,
   Palette,
-  Zap,
   Star,
   Sparkles,
   Crown,
