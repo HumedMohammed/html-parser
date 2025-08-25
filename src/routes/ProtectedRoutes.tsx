@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { LoadingCircle } from "@/components/icons";
 import { useAuthSlice } from "@/pages/Auth/slice";
+import { EnhancedNavbar } from "@/components/shared/EnhancedNavbar";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -24,5 +25,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <EnhancedNavbar />
+      <div className="pt-16">{children}</div>
+    </div>
+  );
 };

@@ -46,6 +46,30 @@ interface Tool {
 
 const tools: Tool[] = [
   {
+    id: "content-editor",
+    isPopular: true,
+    badge: "Popular",
+    title: "HTML Content Editor",
+    description: "Edit HTML content with live preview and real-time updates",
+    longDescription:
+      "Transform your HTML templates with our intuitive content editor. Edit text, swap images, adjust colors and backgrounds - all without touching the code. Perfect for quick content updates and template customization.",
+    icon: <Palette className="w-8 h-8" />,
+    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+    route: "/content-templates",
+    features: [
+      "Live Text Editing",
+      "Media Replacement",
+      "Color Customization",
+      "Background Styling",
+      "Real-time Preview",
+    ],
+    stats: {
+      users: "15.3K+",
+      rating: 4.9,
+      projects: "62K+",
+    },
+  },
+  {
     id: "email",
     title: "Email Designer",
     description: "Create stunning responsive email templates",
@@ -53,9 +77,9 @@ const tools: Tool[] = [
       "Design professional email campaigns with our drag-and-drop MJML editor. Perfect for newsletters, marketing campaigns, and transactional emails.",
     icon: <Mail className="w-8 h-8" />,
     gradient: "from-blue-500 via-purple-500 to-pink-500",
-    route: "/designer",
-    badge: "Popular",
-    isPopular: true,
+    route: "/designs",
+    badge: "New",
+    isPopular: false,
     features: [
       "MJML Framework",
       "Responsive Design",
@@ -65,7 +89,7 @@ const tools: Tool[] = [
     ],
     stats: {
       users: "12.5K+",
-      rating: 4.9,
+      rating: 4.6,
       projects: "45K+",
     },
   },
@@ -117,28 +141,6 @@ const tools: Tool[] = [
   //       projects: "18K+",
   //     },
   //   },
-  {
-    id: "content-editor",
-    title: "HTML Content Editor",
-    description: "Edit HTML content with live preview and real-time updates",
-    longDescription:
-      "Transform your HTML templates with our intuitive content editor. Edit text, swap images, adjust colors and backgrounds - all without touching the code. Perfect for quick content updates and template customization.",
-    icon: <Palette className="w-8 h-8" />,
-    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
-    route: "/content-templates",
-    features: [
-      "Live Text Editing",
-      "Media Replacement",
-      "Color Customization",
-      "Background Styling",
-      "Real-time Preview",
-    ],
-    stats: {
-      users: "15.3K+",
-      rating: 4.6,
-      projects: "62K+",
-    },
-  },
 ];
 
 export const ToolsSelection: React.FC = () => {

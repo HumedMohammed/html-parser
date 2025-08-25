@@ -88,7 +88,7 @@ export const Dashboard: React.FC = () => {
         await handleCopyTemplate(templateId);
         break;
       case "share":
-        await handleCopPublicLink(templateId);
+        handleCopPublicLink(templateId);
         break;
       case "create_public_link":
         setSelectedTemplateId(templateId);
