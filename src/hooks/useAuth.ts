@@ -6,6 +6,7 @@ import { useAuthSlice } from "@/pages/Auth/slice";
 export const useAuth = () => {
   const localUser = db.authStore.record as unknown as User;
   const { isFetchingUser, actions, user, dispatch } = useAuthSlice();
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -26,9 +27,13 @@ export const useAuth = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localUser?.id]);
 
+  const logOut = () => {
+    db.authStore.clear();
+  };
   return {
     user,
     isAuthenticated: !!user,
     isFetchingUser,
+    logOut,
   };
 };

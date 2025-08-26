@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { signOut } from "firebase/auth";
-import { auth } from "@/utils/firebase";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -17,7 +15,6 @@ import {
   User,
   Settings,
   LogOut,
-  Bell,
   Search,
   Moon,
   Sun,
@@ -31,7 +28,7 @@ import {
   HelpCircle,
   Bookmark,
 } from "lucide-react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -44,8 +41,8 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 // Tools from your project
 const tools = [
@@ -116,15 +113,13 @@ const resources = [
 ];
 
 export const EnhancedNavbar: React.FC = () => {
-  const [user] = useAuthState(auth);
+  const { user, logOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [notifications] = useState(3); // Mock notification count
-  const navigate = useNavigate();
   const location = useLocation();
-
+  const navigate = useNavigate();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -132,15 +127,6 @@ export const EnhancedNavbar: React.FC = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      navigate("/");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -357,43 +343,21 @@ export const EnhancedNavbar: React.FC = () => {
                 </motion.div>
               </Button>
 
-              {/* Notifications */}
-              {user && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative w-9 h-9 p-0"
-                >
-                  <Bell className="h-4 w-4" />
-                  {notifications > 0 && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
-                    >
-                      {notifications}
-                    </motion.div>
-                  )}
-                </Button>
-              )}
-
               {/* User Menu or Auth Buttons */}
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="relative h-9 w-9 rounded-full"
+                      className="relative h-10 w-10 rounded-full border border-gray-400"
                     >
                       <Avatar className="h-9 w-9">
                         <AvatarImage
-                          src={user.photoURL || ""}
-                          alt={user.displayName || ""}
+                          src={user.avatar || ""}
+                          alt={user.name || ""}
                         />
                         <AvatarFallback>
-                          {user.displayName?.charAt(0) ||
-                            user.email?.charAt(0) ||
-                            "U"}
+                          {user.name?.charAt(0) || user.email?.charAt(0) || "U"}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -402,7 +366,7 @@ export const EnhancedNavbar: React.FC = () => {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {user.displayName || "User"}
+                          {user.name || "User"}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
                           {user.email}
@@ -429,7 +393,12 @@ export const EnhancedNavbar: React.FC = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        logOut();
+                        navigate("/login");
+                      }}
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign out
                     </DropdownMenuItem>

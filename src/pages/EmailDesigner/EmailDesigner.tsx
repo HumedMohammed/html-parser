@@ -52,14 +52,15 @@ export const Designer = () => {
         async store(data) {
           try {
             let record;
-            try {
-              record = await db
-                .collection("email_designs")
-                .getFirstListItem(`user="${db.authStore.record?.id}"`);
-            } catch {
-              record = null;
+            if (templateId) {
+              try {
+                record = await db
+                  .collection("email_designs")
+                  .getOne(templateId);
+              } catch {
+                record = null;
+              }
             }
-
             if (record) {
               await db.collection("email_designs").update(record.id, { data });
             } else {
