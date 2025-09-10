@@ -39,6 +39,38 @@ export const usePbAuth = () => {
       setLoading(false);
     }
   };
+  const handleEmailLogin = async (values: {
+    email: string;
+    password: string;
+  }) => {
+    setLoading(true);
+    setErrors({});
+
+    try {
+      // PocketBase login with email and password
+      const authData = await db
+        .collection("users")
+        .authWithPassword(values.email, values.password);
+
+      if (authData) {
+        dispatch(actions.setUser(authData.record));
+        setSuccess(true);
+        setTimeout(() => {
+          navigate("/content-templates");
+        }, 1000);
+      }
+    } catch (error: any) {
+      let errorMessage = "Login failed. Please try again.";
+
+      if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ general: errorMessage });
+    } finally {
+      setLoading(false);
+    }
+  };
   return {
     loading,
     success,
@@ -47,5 +79,6 @@ export const usePbAuth = () => {
     setSuccess,
     setLoading,
     handleGoogleAuth,
+    handleEmailLogin,
   };
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   Card,
@@ -21,9 +21,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { usePbAuth } from "@/hooks/usePbAuth";
-import { SillyLoginInterceptor } from "@/components/shared/SillyLoginInterceptor";
+import { db } from "@/utils/pockatbase";
+// import { SillyLoginInterceptor } from "@/components/shared/SillyLoginInterceptor";
 
 interface FormData {
   email: string;
@@ -45,12 +46,12 @@ export const LoginPage: React.FC = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const [visitCount, setVisitCount] = useState(0);
-  const [showSillyInterceptor, setShowSillyInterceptor] = useState(false);
+  // const [visitCount, setVisitCount] = useState(0);
+  // const [showSillyInterceptor, setShowSillyInterceptor] = useState(false);
 
   const {
     handleGoogleAuth,
-    // handleEmailLogin,
+    handleEmailLogin,
     errors,
     loading,
     success,
@@ -58,36 +59,35 @@ export const LoginPage: React.FC = () => {
     setLoading,
   } = usePbAuth();
 
-  const navigate = useNavigate();
-
+  console.log(errors);
   // Track visit count and show silly interceptor
-  useEffect(() => {
-    const VISIT_COUNT_KEY = "login_visit_count";
-    const LAST_VISIT_KEY = "last_login_visit";
-    const now = Date.now();
-    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
-    const currentCount = parseInt(localStorage.getItem(VISIT_COUNT_KEY) || "0");
+  // useEffect(() => {
+  //   const VISIT_COUNT_KEY = "login_visit_count";
+  //   const LAST_VISIT_KEY = "last_login_visit";
+  //   const now = Date.now();
+  //   const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+  //   const currentCount = parseInt(localStorage.getItem(VISIT_COUNT_KEY) || "0");
 
-    // Reset count if more than 24 hours have passed
-    if (lastVisit && now - parseInt(lastVisit) > 24 * 60 * 60 * 1000) {
-      localStorage.setItem(VISIT_COUNT_KEY, "1");
-      setVisitCount(1);
-    } else {
-      const newCount = currentCount + 1;
-      localStorage.setItem(VISIT_COUNT_KEY, newCount.toString());
-      setVisitCount(newCount);
+  //   // Reset count if more than 24 hours have passed
+  //   if (lastVisit && now - parseInt(lastVisit) > 24 * 60 * 60 * 1000) {
+  //     localStorage.setItem(VISIT_COUNT_KEY, "1");
+  //     setVisitCount(1);
+  //   } else {
+  //     const newCount = currentCount + 1;
+  //     localStorage.setItem(VISIT_COUNT_KEY, newCount.toString());
+  //     setVisitCount(newCount);
 
-      // Show silly interceptor after 2+ visits
-      if (newCount >= 2) {
-        const timer = setTimeout(() => {
-          setShowSillyInterceptor(true);
-        }, 1500); // Show after 1.5 seconds
-        return () => clearTimeout(timer);
-      }
-    }
+  //     // Show silly interceptor after 2+ visits
+  //     if (newCount >= 2) {
+  //       const timer = setTimeout(() => {
+  //         setShowSillyInterceptor(true);
+  //       }, 1500); // Show after 1.5 seconds
+  //       return () => clearTimeout(timer);
+  //     }
+  //   }
 
-    localStorage.setItem(LAST_VISIT_KEY, now.toString());
-  }, []);
+  //   localStorage.setItem(LAST_VISIT_KEY, now.toString());
+  // }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -121,12 +121,10 @@ export const LoginPage: React.FC = () => {
 
     if (!validateForm()) return;
 
-    try {
-      // await handleEmailLogin(formData.email, formData.password);
-      navigate("/content-templates");
-    } catch (error) {
-      console.error("Login error:", error);
-    }
+    await handleEmailLogin({
+      email: formData.email,
+      password: formData.password,
+    });
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -146,9 +144,7 @@ export const LoginPage: React.FC = () => {
     setErrors({});
 
     try {
-      // Note: You'll need to implement password reset for PocketBase
-      // For now, using Firebase's method as placeholder
-      // await sendPasswordResetEmail(auth, resetEmail);
+      await db.collection("users").requestPasswordReset(resetEmail);
       setResetEmailSent(true);
     } catch {
       setErrors({ general: "Failed to send reset email. Please try again." });
@@ -255,7 +251,10 @@ export const LoginPage: React.FC = () => {
                     <strong>{resetEmail}</strong>
                   </p>
                   <Button
-                    onClick={() => setShowForgotPassword(false)}
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setResetEmailSent(false);
+                    }}
                     variant="outline"
                     className="w-full"
                   >
@@ -302,7 +301,6 @@ export const LoginPage: React.FC = () => {
                               : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           } transition-colors duration-200`}
                           placeholder="Enter your email address"
-                          required
                         />
                       </div>
                       {errors.email && (
@@ -491,13 +489,14 @@ export const LoginPage: React.FC = () => {
                 </motion.div>
 
                 <motion.div variants={itemVariants} className="text-right">
-                  <button
+                  <Button
+                    variant={"link"}
                     type="button"
                     onClick={() => setShowForgotPassword(true)}
                     className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                   >
                     Forgot your password?
-                  </button>
+                  </Button>
                 </motion.div>
 
                 <motion.div variants={itemVariants}>
@@ -535,14 +534,14 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {/* Silly Login Interceptor */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {showSillyInterceptor && (
           <SillyLoginInterceptor
             visitCount={visitCount}
             onClose={() => setShowSillyInterceptor(false)}
           />
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </>
   );
 };
