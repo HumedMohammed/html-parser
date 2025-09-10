@@ -23,8 +23,8 @@ import { useDuplicateTemplateMutation } from "./Editor/services";
 import { v4 } from "uuid";
 
 export const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
   const [templates, setTemplates] = useState<Template[]>([]);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [showFilters, setShowFilters] = useState(false);
