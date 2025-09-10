@@ -14,6 +14,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Designer } from "./pages/EmailDesigner/EmailDesigner";
 import { ToolsSelection } from "./pages/ToolsSelection/ToolsSelection";
 import { EmailDesignsList } from "./pages/EmailDesignsList/EmailDesignsList";
+import { LiveDemo } from "./pages/LiveDemo";
 const App: React.FC = () => {
   const { user, isFetchingUser } = useAuth();
   const { scrollY } = useScroll();
@@ -73,6 +74,14 @@ const App: React.FC = () => {
             <ProtectedRoute>
               <EmailDesignsList />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/live-demo"
+          element={
+            <>
+              <LiveDemo />
+            </>
           }
         />
         <Route

@@ -12,13 +12,16 @@ import { toast } from "sonner";
 
 type Props = {
   template: Partial<Template> | undefined;
+  staticInput?: string;
 };
 
 type UpdateValue = {
   [key in keyof Template]: any;
 };
-export const useHtmlParser = ({ template }: Props) => {
+export const useHtmlParser = ({ template, staticInput }: Props) => {
+  const skipSaveOrDup = Boolean(staticInput);
   const [htmlInput, setHtmlInput] = useState("");
+
   const [templateName, setTemplateName] = useState("Untitled");
   const [htmlDoc, setHtmlDoc] = useState<Document | null>(null);
   const [exportDoc, setExportDoc] = useState<Document | null>(null); // Add this for export purposes
@@ -175,13 +178,15 @@ export const useHtmlParser = ({ template }: Props) => {
           thumbnail: "",
         };
 
-        saveTemplate(valueToUpdate).then((res) => {
-          if (res.data) {
-            // searchParam.set("templateId", res?.data?.id);
-            // setSearchParam(searchParam);
-            navigate(`/template/editor/${res?.data?.id}`);
-          }
-        });
+        if (!skipSaveOrDup) {
+          saveTemplate(valueToUpdate).then((res) => {
+            if (res.data) {
+              // searchParam.set("templateId", res?.data?.id);
+              // setSearchParam(searchParam);
+              navigate(`/template/editor/${res?.data?.id}`);
+            }
+          });
+        }
       }
     } catch (err) {
       console.log(err);
@@ -190,6 +195,12 @@ export const useHtmlParser = ({ template }: Props) => {
     }
   };
 
+  useEffect(() => {
+    if (staticInput) {
+      setHtmlInput(staticInput);
+      parseHtml(staticInput);
+    }
+  }, [staticInput]);
   useEffect(() => {
     if (template?.template) {
       setHtmlInput(template?.template?.value as string);
@@ -387,7 +398,7 @@ export const useHtmlParser = ({ template }: Props) => {
   };
 
   const updateTemplate = async (valueToUpdate: Partial<UpdateValue>) => {
-    if (template?.user) {
+    if (template?.user && !skipSaveOrDup) {
       saveTemplate({ ...template, ...valueToUpdate });
     }
   };
