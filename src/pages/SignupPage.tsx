@@ -10,7 +10,7 @@ import {
   Mail,
   Lock,
   User,
-  Chrome,
+  // Chrome,
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
@@ -53,7 +53,7 @@ export const SignupPage: React.FC = () => {
     confirmPassword: "",
   });
   const {
-    handleGoogleAuth,
+    // handleGoogleAuth,
     errors,
     loading,
     success,
@@ -257,7 +257,7 @@ export const SignupPage: React.FC = () => {
               )}
             </AnimatePresence>
 
-            <motion.div variants={itemVariants}>
+            {/* <motion.div variants={itemVariants}>
               <Button
                 type="button"
                 variant="outline"
@@ -279,7 +279,7 @@ export const SignupPage: React.FC = () => {
                   Or continue with email
                 </span>
               </div>
-            </motion.div>
+            </motion.div> */}
 
             <form onSubmit={handleEmailSignup} className="space-y-4">
               <motion.div
