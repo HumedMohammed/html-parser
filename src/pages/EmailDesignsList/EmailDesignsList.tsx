@@ -276,6 +276,7 @@ export const EmailDesignsList = () => {
                     },
                   })
                   .then((res) => {
+                    console.log(res);
                     navigate(`/designer/${res.id}`);
                   });
               }}
@@ -374,7 +375,20 @@ export const EmailDesignsList = () => {
                   : "Create your first email design to get started"}
               </p>
               <Button
-                onClick={() => navigate("/designer")}
+                onClick={() => {
+                  db.collection("email_designs")
+                    .create({
+                      user: db.authStore.record?.id,
+                      name: "New Design",
+                      data: {
+                        // Add initial email design data here
+                      },
+                    })
+                    .then((res) => {
+                      console.log(res);
+                      navigate(`/designer/${res.id}`);
+                    });
+                }}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />

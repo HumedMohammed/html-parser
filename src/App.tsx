@@ -58,6 +58,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/designer" element={<Designer />} />
         <Route path="/designer/:templateId" element={<Designer />} />
         <Route path="/public/:templateId" element={<Editor />} />
         <Route
