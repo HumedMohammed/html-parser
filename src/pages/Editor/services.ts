@@ -4,6 +4,7 @@ import type { Template } from "@/types/types";
 export const {
   useSaveTemplateMutation,
   useGetSingleTemplateQuery,
+  useGetPublicTemplateQuery,
   useDuplicateTemplateMutation,
 } = rootServiceApi.injectEndpoints({
   endpoints: (build) => ({
@@ -27,6 +28,17 @@ export const {
       query: (templateId) => ({
         url: `/get-template/${templateId}`,
         method: "GET",
+      }),
+      providesTags: ["get-single-template"],
+    }),
+    getPublicTemplate: build.query<
+      Template,
+      { templateId: string; token: string }
+    >({
+      query: ({ templateId, token }) => ({
+        url: `/public-template/${templateId}`,
+        method: "GET",
+        params: { token },
       }),
       providesTags: ["get-single-template"],
     }),

@@ -13,13 +13,14 @@ import { toast } from "sonner";
 type Props = {
   template: Partial<Template> | undefined;
   staticInput?: string;
+  readOnly?: boolean;
 };
 
 type UpdateValue = {
   [key in keyof Template]: any;
 };
-export const useHtmlParser = ({ template, staticInput }: Props) => {
-  const skipSaveOrDup = Boolean(staticInput);
+export const useHtmlParser = ({ template, staticInput, readOnly }: Props) => {
+  const skipSaveOrDup = Boolean(staticInput || readOnly);
   const [htmlInput, setHtmlInput] = useState("");
 
   const [templateName, setTemplateName] = useState("Untitled");

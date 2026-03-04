@@ -26,7 +26,10 @@ import {
 import { cn } from "@/lib/utils";
 import { useHtmlParser } from "@/hooks/useHtmlParser";
 import { EditorNavigation } from "./EditorNavigation";
-import { useGetSingleTemplateQuery } from "./services";
+import {
+  useGetPublicTemplateQuery,
+  useGetSingleTemplateQuery,
+} from "./services";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { LoadingPage } from "@/components/shared/LoadingPage";
 import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
@@ -54,15 +57,32 @@ export function Editor() {
     [],
   );
   const { templateId } = useParams();
+  const publicToken = searchParams.get("token") || "";
+
   const {
-    data,
-    isLoading: gettingTemplate,
+    data: privateTemplate,
+    isLoading: gettingPrivateTemplate,
     error: gettingTemplateError,
   } = useGetSingleTemplateQuery(templateId as string, {
-    skip: !templateId,
+    skip: !templateId || isPublicView,
     refetchOnFocus: true,
     refetchOnMountOrArgChange: true,
   });
+
+  const { data: publicTemplate, isLoading: gettingPublicTemplate } =
+    useGetPublicTemplateQuery(
+      {
+        templateId: templateId as string,
+        token: publicToken,
+      },
+      {
+        skip: !templateId || !isPublicView || !publicToken,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
+      },
+    );
+
+  const data = isPublicView ? publicTemplate : privateTemplate;
 
   const templateAccessErrorMessage =
     (gettingTemplateError as { data?: { error?: string } })?.data?.error || "";
@@ -101,9 +121,10 @@ export function Editor() {
     handleImageChange,
   } = useHtmlParser({
     template: templateId ? data : {},
+    readOnly: isPublicView,
   });
 
-  if (gettingTemplate) {
+  if (gettingPrivateTemplate || gettingPublicTemplate) {
     return <LoadingPage />;
   }
 
