@@ -1,1 +1,1 @@
-export const apiPath = "https://html.havkal.com";
+export const apiPath = "http://localhost:8090";
