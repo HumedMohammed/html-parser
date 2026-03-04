@@ -430,7 +430,16 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
 
   const updateTemplate = async (valueToUpdate: Partial<UpdateValue>) => {
     if (template?.user && !skipSaveOrDup) {
-      saveTemplate({ ...template, ...valueToUpdate });
+      saveTemplate({ ...template, ...valueToUpdate }).then((res) => {
+        if (!res.data) {
+          const message = getTemplateCreateErrorMessage(
+            res,
+            "Unable to update template.",
+          );
+          setError(message);
+          toast.error(message);
+        }
+      });
     }
   };
 

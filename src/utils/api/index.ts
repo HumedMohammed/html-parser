@@ -23,6 +23,20 @@ export const request = async (config: AxiosRequestConfig) => {
   })
     .then((res) => res)
     .catch((err) => {
+      const status = err?.response?.status;
+      const redirectTo = err?.response?.data?.redirectTo;
+      const code = err?.response?.data?.code;
+
+      if (
+        status === 403 &&
+        code === "PLAN_LIMIT_REACHED" &&
+        typeof redirectTo === "string"
+      ) {
+        if (window.location.pathname !== redirectTo) {
+          window.location.assign(redirectTo);
+        }
+      }
+
       throw err;
     });
 };

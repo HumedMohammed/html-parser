@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { useHtmlParser } from "@/hooks/useHtmlParser";
 import { EditorNavigation } from "./EditorNavigation";
 import { useGetSingleTemplateQuery } from "./services";
-import { useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { LoadingPage } from "@/components/shared/LoadingPage";
 import { TemplateNotFound } from "@/components/shared/TemplateNotFound";
 import { toast } from "sonner";
@@ -54,13 +54,20 @@ export function Editor() {
     [],
   );
   const { templateId } = useParams();
-  const { data, isLoading: gettingTemplate } = useGetSingleTemplateQuery(
-    templateId as string,
-    {
-      skip: !templateId,
-      refetchOnFocus: true,
-      refetchOnMountOrArgChange: true,
-    },
+  const {
+    data,
+    isLoading: gettingTemplate,
+    error: gettingTemplateError,
+  } = useGetSingleTemplateQuery(templateId as string, {
+    skip: !templateId,
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
+
+  const templateAccessErrorMessage =
+    (gettingTemplateError as { data?: { error?: string } })?.data?.error || "";
+  const isFreePlanLimitBlocked = templateAccessErrorMessage.includes(
+    "Free plan limit reached. Upgrade to Pro to create more than 5 templates.",
   );
 
   const {
@@ -98,6 +105,30 @@ export function Editor() {
 
   if (gettingTemplate) {
     return <LoadingPage />;
+  }
+
+  if (templateId && !data && isFreePlanLimitBlocked) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4">
+        <Card className="w-full max-w-xl border-slate-200 dark:border-slate-800">
+          <CardHeader>
+            <CardTitle>Upgrade Required</CardTitle>
+            <CardDescription>
+              Free plan limit reached. Upgrade to Pro to create more than 5
+              templates.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row gap-3">
+            <Button asChild>
+              <Link to="/pricing">Upgrade to Pro</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/content-templates">Back to Templates</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (templateId && !data) {
