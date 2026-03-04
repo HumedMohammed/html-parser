@@ -36,6 +36,30 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
   const [saveTemplate, { isLoading: saving, isSuccess: savingSuccess }] =
     useSaveTemplateMutation();
 
+  const getTemplateCreateErrorMessage = (
+    response: unknown,
+    fallback = "Failed to create template.",
+  ) => {
+    const apiError = response as {
+      error?: { data?: { error?: string; message?: string }; status?: number };
+    };
+
+    const message =
+      apiError?.error?.data?.error ||
+      apiError?.error?.data?.message ||
+      fallback;
+
+    if (
+      message.includes(
+        "Free plan limit reached. Upgrade to Pro to create more than 5 templates.",
+      )
+    ) {
+      return "Free plan limit reached. Upgrade to Pro to create more than 5 templates.";
+    }
+
+    return message;
+  };
+
   // Parse HTML and extract text nodes
   const parseHtml = (htmlString: string) => {
     if (!htmlString.trim()) {
@@ -74,7 +98,7 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
               ? NodeFilter.FILTER_ACCEPT
               : NodeFilter.FILTER_REJECT;
           },
-        }
+        },
       );
 
       while (walker.nextNode() && exportWalker.nextNode()) {
@@ -108,7 +132,7 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
 
             exportTextNode.parentNode?.insertBefore(
               exportWrapper,
-              exportTextNode
+              exportTextNode,
             );
             exportTextNode.parentNode?.removeChild(exportTextNode);
             exportWrapper.appendChild(exportTextNode);
@@ -134,7 +158,7 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
           // Add position info for mixed content
           const siblings = Array.from(parentElement.childNodes);
           const textIndex = siblings.findIndex((node) =>
-            needsWrapper ? node === targetElement : node === textNode
+            needsWrapper ? node === targetElement : node === textNode,
           );
           if (siblings.length > 1) {
             label += ` [${textIndex + 1}/${siblings.length}]`;
@@ -184,6 +208,13 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
               // searchParam.set("templateId", res?.data?.id);
               // setSearchParam(searchParam);
               navigate(`/template/editor/${res?.data?.id}`);
+            } else {
+              const message = getTemplateCreateErrorMessage(
+                res,
+                "Unable to create template.",
+              );
+              setError(message);
+              toast.error(message);
             }
           });
         }
@@ -240,7 +271,7 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
         const iframe = iframeRef.current;
         if (iframe && iframe.contentDocument) {
           const wrapper = iframe.contentDocument.querySelector(
-            `[data-text-id="${textId}"]`
+            `[data-text-id="${textId}"]`,
           ) as HTMLElement;
 
           if (wrapper) {
@@ -286,7 +317,7 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
     (id: string, newValue: string) => {
       // Update texts state immediately (no debounce for UI responsiveness)
       const newTexts = texts.map((t) =>
-        t.id === id ? { ...t, value: newValue } : t
+        t.id === id ? { ...t, value: newValue } : t,
       );
       setTexts(newTexts);
 
@@ -301,7 +332,7 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
       // Update the iframe content immediately
       if (iframeRef.current && iframeRef.current.contentDocument) {
         const iframeWrapper = iframeRef.current.contentDocument.querySelector(
-          `[data-text-id="${id}"]`
+          `[data-text-id="${id}"]`,
         );
         if (iframeWrapper && iframeWrapper.firstChild) {
           iframeWrapper.firstChild.nodeValue = newValue;
@@ -310,7 +341,7 @@ export const useHtmlParser = ({ template, staticInput }: Props) => {
 
       setActiveTextId(id);
     },
-    [exportDoc, texts]
+    [exportDoc, texts],
   );
 
   // Handle paste from clipboard

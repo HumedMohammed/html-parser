@@ -22,11 +22,9 @@ import {
   Mail,
   LayoutDashboard,
   Home,
-  FileText,
   Zap,
   Users,
-  HelpCircle,
-  Bookmark,
+  Crown,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -74,7 +72,7 @@ const mainNavigation = [
   },
   {
     title: "Dashboard",
-    href: "/dashboard",
+    href: "/tools",
     icon: <LayoutDashboard className="h-4 w-4" />,
   },
   {
@@ -83,32 +81,10 @@ const mainNavigation = [
     icon: <Zap className="h-4 w-4" />,
     hasDropdown: true,
   },
-];
-
-const resources = [
   {
-    title: "Documentation",
-    description: "Learn how to use our tools effectively",
-    href: "/docs",
-    icon: <FileText className="h-4 w-4" />,
-  },
-  {
-    title: "Templates",
-    description: "Browse our template gallery",
-    href: "/templates",
-    icon: <Bookmark className="h-4 w-4" />,
-  },
-  {
-    title: "Community",
-    description: "Connect with other creators",
-    href: "/community",
-    icon: <Users className="h-4 w-4" />,
-  },
-  {
-    title: "Help Center",
-    description: "Get support and find answers",
-    href: "/help",
-    icon: <HelpCircle className="h-4 w-4" />,
+    title: "Pricing",
+    href: "/pricing",
+    icon: <Crown className="h-4 w-4" />,
   },
 ];
 
@@ -148,7 +124,7 @@ export const EnhancedNavbar: React.FC = () => {
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           isScrolled
             ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg"
-            : "bg-transparent"
+            : "bg-transparent",
         )}
       >
         <div className="container mx-auto px-4">
@@ -196,14 +172,14 @@ export const EnhancedNavbar: React.FC = () => {
                             className={cn(
                               "bg-transparent group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 focus:outline-none disabled:pointer-events-none disabled:opacity-50",
                               isActivePath(href) &&
-                                "bg-gray-100 dark:bg-gray-800"
+                                "bg-gray-100 dark:bg-gray-800",
                             )}
                           >
                             {icon}
                             <span className="ml-2">{title}</span>
                           </NavigationMenuTrigger>
                           <NavigationMenuContent>
-                            <div className="grid gap-3 p-6 w-[600px] grid-cols-2">
+                            <div className="grid gap-3 p-6 w-[420px] grid-cols-1">
                               <div className="space-y-3">
                                 <h4 className="text-sm font-medium leading-none text-gray-900 dark:text-white flex items-center">
                                   <Zap className="w-4 h-4 mr-2 text-blue-500" />
@@ -248,31 +224,6 @@ export const EnhancedNavbar: React.FC = () => {
                                   </NavigationMenuLink>
                                 ))}
                               </div>
-                              <div className="space-y-3">
-                                <h4 className="text-sm font-medium leading-none text-gray-900 dark:text-white flex items-center">
-                                  <FileText className="w-4 h-4 mr-2 text-emerald-500" />
-                                  Resources
-                                </h4>
-                                {resources.map((resource) => (
-                                  <>
-                                    <Link
-                                      key={resource.title}
-                                      to={resource.href}
-                                      className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800"
-                                    >
-                                      <div className="flex items-center space-x-2">
-                                        {resource.icon}
-                                        <div className="text-sm font-medium leading-none text-gray-900 dark:text-white">
-                                          {resource.title}
-                                        </div>
-                                      </div>
-                                      <p className="line-clamp-2 text-xs leading-snug text-gray-600 dark:text-gray-400">
-                                        {resource.description}
-                                      </p>
-                                    </Link>
-                                  </>
-                                ))}
-                              </div>
                             </div>
                           </NavigationMenuContent>
                         </>
@@ -283,7 +234,7 @@ export const EnhancedNavbar: React.FC = () => {
                             className={cn(
                               "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800 focus:outline-none",
                               isActivePath(href) &&
-                                "bg-gray-100 dark:bg-gray-800"
+                                "bg-gray-100 dark:bg-gray-800",
                             )}
                           >
                             {icon}
@@ -371,11 +322,14 @@ export const EnhancedNavbar: React.FC = () => {
                         <p className="text-xs leading-none text-muted-foreground">
                           {user.email}
                         </p>
+                        <p className="text-xs leading-none text-muted-foreground mt-1">
+                          Plan: {(user.plan || "free").toUpperCase()}
+                        </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="flex items-center">
+                      <Link to="/tools" className="flex items-center">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         Dashboard
                       </Link>
@@ -473,7 +427,7 @@ export const EnhancedNavbar: React.FC = () => {
                         "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                         isActivePath(item.href)
                           ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
-                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800",
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -506,21 +460,6 @@ export const EnhancedNavbar: React.FC = () => {
                                 {tool.badge}
                               </Badge>
                             )}
-                          </Link>
-                        ))}
-
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4">
-                          Resources
-                        </div>
-                        {resources.map((resource) => (
-                          <Link
-                            key={resource.title}
-                            to={resource.href}
-                            className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            {resource.icon}
-                            <span>{resource.title}</span>
                           </Link>
                         ))}
                       </div>

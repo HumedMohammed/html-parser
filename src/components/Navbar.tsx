@@ -40,7 +40,6 @@ import {
   Wand2,
   Brain,
   Rocket,
-  Car,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -122,29 +121,6 @@ const tools = [
     description: "Translate content to 100+ languages",
     icon: <Globe className="h-5 w-5" />,
     href: "/tools/translation",
-  },
-];
-
-const resources = [
-  {
-    title: "Getting Started",
-    description: "Learn the basics of AI content creation",
-    href: "/docs/getting-started",
-  },
-  {
-    title: "API Documentation",
-    description: "Integrate our AI into your applications",
-    href: "/docs/api",
-  },
-  {
-    title: "Templates",
-    description: "Pre-made templates for quick creation",
-    href: "/templates",
-  },
-  {
-    title: "Community",
-    description: "Join our creator community",
-    href: "/community",
   },
 ];
 
@@ -260,8 +236,8 @@ export const Navbar: React.FC = () => {
                                           service.badge === "New"
                                             ? "default"
                                             : service.badge === "Popular"
-                                            ? "secondary"
-                                            : "outline"
+                                              ? "secondary"
+                                              : "outline"
                                         }
                                         className="text-xs"
                                       >
@@ -314,42 +290,6 @@ export const Navbar: React.FC = () => {
                                     {tool.description}
                                   </p>
                                 </div>
-                              </Link>
-                            </NavigationMenuLink>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-
-                {/* Resources */}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="gap-2 bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-slate-800 transition-colors">
-                    <Car />
-                    Resources
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="w-[300px] p-6">
-                      <div className="grid gap-3">
-                        {resources.map((resource, index) => (
-                          <motion.div
-                            key={resource.title}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                          >
-                            <NavigationMenuLink asChild>
-                              <Link
-                                to={resource.href}
-                                className="group block p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
-                              >
-                                <h3 className="font-medium text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors mb-1">
-                                  {resource.title}
-                                </h3>
-                                <p className="text-sm text-slate-600 dark:text-slate-400">
-                                  {resource.description}
-                                </p>
                               </Link>
                             </NavigationMenuLink>
                           </motion.div>

@@ -51,7 +51,7 @@ export function Editor() {
   const deleteControl = useDisclosure();
   const isPublicView = useMemo(
     () => window.location.pathname.includes("/public"),
-    []
+    [],
   );
   const { templateId } = useParams();
   const { data, isLoading: gettingTemplate } = useGetSingleTemplateQuery(
@@ -60,7 +60,7 @@ export function Editor() {
       skip: !templateId,
       refetchOnFocus: true,
       refetchOnMountOrArgChange: true,
-    }
+    },
   );
 
   const {
@@ -169,6 +169,14 @@ export function Editor() {
                   if (res.data) {
                     toast("Template duplicated successfully");
                     navigate(`/template/editor/${res.data.id}`);
+                  } else {
+                    const message =
+                      (res as { error?: { data?: { error?: string } } }).error
+                        ?.data?.error ||
+                      "Failed to duplicate template. Upgrade to Pro if your free limit is reached.";
+                    toast(message, {
+                      className: "bg-red-500 text-white",
+                    });
                   }
                 });
               } else {
@@ -322,7 +330,7 @@ export function Editor() {
                                   className={cn(
                                     "min-h-[80px] resize-none transition-all duration-200",
                                     activeTextId === text.id &&
-                                      "ring-2 ring-blue-500 ring-offset-2"
+                                      "ring-2 ring-blue-500 ring-offset-2",
                                   )}
                                   placeholder="Enter text content..."
                                 />

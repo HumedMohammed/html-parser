@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,6 +20,7 @@ import {
   TrendingUp,
   ChevronRight,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Tool {
   id: string;
@@ -142,6 +144,7 @@ const tools: Tool[] = [
 export const ToolsSelection: React.FC = () => {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleToolSelect = (tool: Tool) => {
@@ -186,36 +189,21 @@ export const ToolsSelection: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            rotate: [0, 360],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            rotate: [360, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl"
-        />
-      </div>
+      <div className="absolute inset-0 overflow-hidden" />
 
       <div className="relative z-10 container mx-auto px-4 py-12">
+        <div className="flex justify-end mb-6">
+          <Badge variant="outline" className="mr-3">
+            Plan: {(user?.plan || "free").toUpperCase()}
+          </Badge>
+          {user?.plan !== "pro" && (
+            <Button asChild size="sm" variant="outline">
+              <Link to="/pricing">Upgrade</Link>
+            </Button>
+          )}
+        </div>
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -223,8 +211,8 @@ export const ToolsSelection: React.FC = () => {
           className="text-center mb-16"
         >
           <motion.div variants={itemVariants} className="mb-6">
-            <div className="inline-flex items-center space-x-2 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-              <Sparkles className="w-4 h-4 text-purple-600" />
+            <div className="inline-flex items-center space-x-2 bg-white dark:bg-slate-900 rounded-full px-4 py-2 border border-slate-200 dark:border-slate-800">
+              <Sparkles className="w-4 h-4 text-slate-700 dark:text-slate-300" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Choose Your Creative Tool
               </span>
@@ -233,7 +221,7 @@ export const ToolsSelection: React.FC = () => {
 
           <motion.h1
             variants={itemVariants}
-            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-6"
+            className="text-5xl md:text-6xl font-semibold text-slate-900 dark:text-slate-100 mb-6"
           >
             Design Studio
           </motion.h1>
@@ -260,7 +248,7 @@ export const ToolsSelection: React.FC = () => {
               <span className="text-sm">1M+ Projects</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-              <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+              <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
               <span className="text-sm">4.8 Rating</span>
             </div>
           </motion.div>
@@ -282,11 +270,9 @@ export const ToolsSelection: React.FC = () => {
               className="group cursor-pointer"
               onClick={() => handleToolSelect(tool)}
             >
-              <Card className="h-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden relative">
+              <Card className="h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden relative">
                 {/* Gradient Background */}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
-                />
+                <div className="absolute inset-0 opacity-0" />
 
                 {/* Badge */}
                 {tool.badge && (
@@ -296,8 +282,8 @@ export const ToolsSelection: React.FC = () => {
                         tool.isNew
                           ? "default"
                           : tool.isPopular
-                          ? "secondary"
-                          : "outline"
+                            ? "secondary"
+                            : "outline"
                       }
                       className={`
                         ${tool.isNew ? "bg-emerald-500 text-white" : ""}
@@ -323,13 +309,13 @@ export const ToolsSelection: React.FC = () => {
                         rotate: hoveredTool === tool.id ? 5 : 0,
                       }}
                       transition={{ duration: 0.3 }}
-                      className={`p-3 rounded-2xl bg-gradient-to-r ${tool.gradient} text-white shadow-lg mb-4`}
+                      className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 mb-4"
                     >
                       {tool.icon}
                     </motion.div>
                   </div>
 
-                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
+                  <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-slate-100 transition-all duration-300">
                     {tool.title}
                   </CardTitle>
 
@@ -354,7 +340,7 @@ export const ToolsSelection: React.FC = () => {
                           key={idx}
                           className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400"
                         >
-                          <div className="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                          <div className="w-1.5 h-1.5 bg-slate-500 rounded-full" />
                           <span>{feature}</span>
                         </div>
                       ))}
@@ -369,7 +355,7 @@ export const ToolsSelection: React.FC = () => {
                         <span>{tool.stats.users}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                         <span>{tool.stats.rating}</span>
                       </div>
                     </div>
@@ -379,7 +365,7 @@ export const ToolsSelection: React.FC = () => {
                         x: hoveredTool === tool.id ? 5 : 0,
                       }}
                       transition={{ duration: 0.3 }}
-                      className="flex items-center space-x-1 text-blue-600 dark:text-blue-400 font-medium text-sm"
+                      className="flex items-center space-x-1 text-slate-700 dark:text-slate-300 font-medium text-sm"
                     >
                       <span>Get Started</span>
                       <ChevronRight className="w-4 h-4" />

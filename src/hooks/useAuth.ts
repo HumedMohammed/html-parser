@@ -32,6 +32,7 @@ export const useAuth = () => {
   };
   return {
     user,
+    isPro: user?.plan === "pro",
     isAuthenticated: !!user,
     isFetchingUser,
     logOut,

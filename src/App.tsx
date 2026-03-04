@@ -15,6 +15,7 @@ import { Designer } from "./pages/EmailDesigner/EmailDesigner";
 import { ToolsSelection } from "./pages/ToolsSelection/ToolsSelection";
 import { EmailDesignsList } from "./pages/EmailDesignsList/EmailDesignsList";
 import { LiveDemo } from "./pages/LiveDemo";
+import { PricingPage } from "./pages/PricingPage";
 const App: React.FC = () => {
   const { user, isFetchingUser } = useAuth();
   const { scrollY } = useScroll();
@@ -95,6 +96,7 @@ const App: React.FC = () => {
         />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/legal" element={<LegalPage />} />
       </Routes>
     </BrowserRouter>

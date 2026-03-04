@@ -25,6 +25,7 @@ import {
   Tablet,
   Undo2,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const DEFAULT_MJML_TEMPLATE = `
   <mjml>
@@ -176,6 +177,19 @@ export const Designer = () => {
           }
         } catch (err) {
           console.error("PB store error", err);
+          const message =
+            (
+              err as {
+                response?: { data?: { error?: string }; error?: string };
+              }
+            )?.response?.data?.error ||
+            (
+              err as {
+                response?: { data?: { error?: string }; error?: string };
+              }
+            )?.response?.error ||
+            "Unable to save design. Upgrade to Pro if your free limit is reached.";
+          toast.error(message);
           throw err;
         }
       },

@@ -3,6 +3,8 @@ export interface User {
   email: string;
   name: string;
   avatar?: string;
+  role?: "admin" | "editor";
+  plan?: "free" | "pro";
 }
 
 export interface TextNode {

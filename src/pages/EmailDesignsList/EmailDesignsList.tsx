@@ -35,6 +35,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { db } from "@/utils/pockatbase";
 import { LoadingCircle } from "@/components/icons";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface EmailDesign {
   id: string;
@@ -49,16 +50,21 @@ interface EmailDesign {
 }
 
 export const EmailDesignsList = () => {
+  const { user } = useAuth();
   const [designs, setDesigns] = useState<EmailDesign[]>([]);
   const [filteredDesigns, setFilteredDesigns] = useState<EmailDesign[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedFilter, setSelectedFilter] = useState<"all" | "favorites">(
-    "all"
+    "all",
   );
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const getErrorMessage = (error: any, fallback: string) => {
+    return error?.response?.data?.error || error?.response?.error || fallback;
+  };
 
   // Load designs from PocketBase
   useEffect(() => {
@@ -71,7 +77,7 @@ export const EmailDesignsList = () => {
 
     if (searchQuery) {
       filtered = filtered.filter((design) =>
-        design.name.toLowerCase().includes(searchQuery.toLowerCase())
+        design.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -121,7 +127,7 @@ export const EmailDesignsList = () => {
 
       // Look for images in assets
       const images = Object.values(data.assets).filter(
-        (asset: any) => asset.type === "image" && asset.src
+        (asset: any) => asset.type === "image" && asset.src,
       );
 
       return images.length > 0 ? (images[0] as any).src : undefined;
@@ -168,7 +174,26 @@ export const EmailDesignsList = () => {
       toast.success("Design duplicated successfully");
     } catch (error) {
       console.error("Failed to duplicate design:", error);
-      toast.error("Failed to duplicate design");
+      toast.error(getErrorMessage(error, "Failed to duplicate design"));
+    }
+  };
+
+  const handleCreateNewDesign = async () => {
+    try {
+      const res = await db.collection("email_designs").create({
+        user: db.authStore.record?.id,
+        name: "New Design",
+        data: {},
+      });
+      navigate(`/designer/${res.id}`);
+    } catch (error) {
+      console.error("Failed to create design:", error);
+      toast.error(
+        getErrorMessage(
+          error,
+          "Unable to create design. Upgrade to Pro if your free limit is reached.",
+        ),
+      );
     }
   };
 
@@ -183,8 +208,8 @@ export const EmailDesignsList = () => {
 
       setDesigns(
         designs.map((d) =>
-          d.id === id ? { ...d, isFavorite: !d.isFavorite } : d
-        )
+          d.id === id ? { ...d, isFavorite: !d.isFavorite } : d,
+        ),
       );
     } catch (error) {
       console.error("Failed to toggle favorite:", error);
@@ -225,7 +250,7 @@ export const EmailDesignsList = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <LoadingCircle className="w-8 h-8" />
           <p className="text-gray-600 dark:text-gray-300">
@@ -237,7 +262,7 @@ export const EmailDesignsList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -257,29 +282,22 @@ export const EmailDesignsList = () => {
 
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              <h1 className="text-4xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
                 Email Designs
               </h1>
               <p className="text-gray-600 dark:text-gray-300">
                 Manage your email templates and designs
               </p>
+              <div className="mt-3">
+                <Badge variant="outline">
+                  Plan: {(user?.plan || "free").toUpperCase()}
+                </Badge>
+              </div>
             </div>
 
             <Button
-              onClick={() => {
-                db.collection("email_designs")
-                  .create({
-                    user: db.authStore.record?.id,
-                    name: "New Design",
-                    data: {
-                      // Add initial email design data here
-                    },
-                  })
-                  .then((res) => {
-                    navigate(`/designer/${res.id}`);
-                  });
-              }}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-6 py-3"
+              onClick={handleCreateNewDesign}
+              className="font-semibold px-6 py-3"
             >
               <Plus className="w-5 h-5 mr-2" />
               Create New Design
@@ -290,7 +308,7 @@ export const EmailDesignsList = () => {
         {/* Filters and Search */}
         <motion.div
           variants={itemVariants}
-          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-8"
+          className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-6 mb-8"
         >
           <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -360,8 +378,8 @@ export const EmailDesignsList = () => {
               exit={{ opacity: 0, y: -20 }}
               className="text-center py-16"
             >
-              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full flex items-center justify-center">
-                <Mail className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+              <div className="w-24 h-24 mx-auto mb-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                <Mail className="w-12 h-12 text-slate-600 dark:text-slate-300" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 {searchQuery || selectedFilter === "favorites"
@@ -375,7 +393,7 @@ export const EmailDesignsList = () => {
               </p>
               <Button
                 onClick={() => navigate("/designer")}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                className="text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Your First Design

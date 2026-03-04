@@ -10,6 +10,7 @@ const initialState: AuthState = {
         email: db.authStore.record?.email,
         id: db.authStore.record?.id,
         name: db.authStore.record?.name,
+        plan: db.authStore.record?.plan || "free",
       }
     : null,
   isFetchingUser: true,

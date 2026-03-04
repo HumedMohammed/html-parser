@@ -30,7 +30,7 @@ export const Dashboard: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showPublicLinkModal, setShowPublicLinkModal] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
-    null
+    null,
   );
   const [generatingPublicLink, setGeneratingPublicLink] = useState(false);
   const [duplicate, { isLoading: duplicating }] =
@@ -119,7 +119,10 @@ export const Dashboard: React.FC = () => {
             navigate(`/template/editor/${res.data.id}`);
             fetchTemplates();
           } else {
-            toast("Failed to duplicate template", {
+            const message =
+              (res as { error?: { data?: { error?: string } } }).error?.data
+                ?.error || "Failed to duplicate template";
+            toast(message, {
               className: "bg-red-500 text-white",
             });
           }
@@ -181,8 +184,8 @@ export const Dashboard: React.FC = () => {
                 publicLink,
                 expireTime: expireDate?.toISOString() || null,
               }
-            : template
-        )
+            : template,
+        ),
       );
 
       toast("Public link generated successfully!", {
@@ -229,7 +232,7 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -238,16 +241,16 @@ export const Dashboard: React.FC = () => {
           className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8"
         >
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
               My Templates
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-slate-600 dark:text-slate-300">
               Manage and organize your creative templates
             </p>
           </div>
           <div className="flex items-center space-x-4 mt-4 lg:mt-0">
             <Link to="/template/editor">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+              <Button>
                 <Plus className="w-4 h-4 mr-2" />
                 New Template
               </Button>
@@ -277,7 +280,7 @@ export const Dashboard: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={showFilters ? "bg-blue-50 border-blue-200" : ""}
+              className={showFilters ? "bg-slate-100 border-slate-300" : ""}
             >
               <Filter className="w-4 h-4 mr-2" />
               Filters
@@ -343,7 +346,7 @@ export const Dashboard: React.FC = () => {
         >
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-700 dark:border-slate-200"></div>
             </div>
           ) : templates.length === 0 ? (
             <motion.div variants={itemVariants} className="text-center py-12">
@@ -360,7 +363,7 @@ export const Dashboard: React.FC = () => {
                     : "Get started by creating your first template."}
                 </p>
                 <Link to="/template/editor">
-                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                  <Button>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Template
                   </Button>
