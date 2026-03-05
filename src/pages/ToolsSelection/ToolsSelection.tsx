@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Mail,
   Palette,
   Star,
   Sparkles,
@@ -62,33 +61,9 @@ const tools: Tool[] = [
       "Real-time Preview",
     ],
     stats: {
-      users: "15.3K+",
+      users: "320",
       rating: 4.9,
-      projects: "62K+",
-    },
-  },
-  {
-    id: "email",
-    title: "Email Designer",
-    description: "Create stunning responsive email templates",
-    longDescription:
-      "Design professional email campaigns with our drag-and-drop MJML editor. Perfect for newsletters, marketing campaigns, and transactional emails.",
-    icon: <Mail className="w-8 h-8" />,
-    gradient: "from-blue-500 via-purple-500 to-pink-500",
-    route: "/designs",
-    badge: "New",
-    isPopular: false,
-    features: [
-      "MJML Framework",
-      "Responsive Design",
-      "Live Preview",
-      "Template Library",
-      "Export Options",
-    ],
-    stats: {
-      users: "12.5K+",
-      rating: 4.6,
-      projects: "45K+",
+      projects: "400",
     },
   },
   //   {
@@ -110,9 +85,9 @@ const tools: Tool[] = [
   //       "Fast Loading",
   //     ],
   //     stats: {
-  //       users: "8.2K+",
-  //       rating: 4.8,
-  //       projects: "28K+",
+  //       users: "280",
+  //       rating: 1.0,
+  //       projects: "300",
   //     },
   //   },
   //   {
@@ -134,9 +109,9 @@ const tools: Tool[] = [
   //       "Export to Code",
   //     ],
   //     stats: {
-  //       users: "5.8K+",
-  //       rating: 4.7,
-  //       projects: "18K+",
+  //       users: "180",
+  //       rating: 1.0,
+  //       projects: "200",
   //     },
   //   },
 ];
@@ -241,15 +216,15 @@ export const ToolsSelection: React.FC = () => {
           >
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
               <Users className="w-5 h-5" />
-              <span className="text-sm">50K+ Creators</span>
+              <span className="text-sm">320 Creators</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
               <TrendingUp className="w-5 h-5" />
-              <span className="text-sm">1M+ Projects</span>
+              <span className="text-sm">400 Projects</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
               <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-              <span className="text-sm">4.8 Rating</span>
+              <span className="text-sm">4.9 Rating</span>
             </div>
           </motion.div>
         </motion.div>

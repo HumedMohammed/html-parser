@@ -11,9 +11,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { ProtectedRoute } from "./routes/ProtectedRoutes";
 import { useAuth } from "./hooks/useAuth";
 import { Dashboard } from "./pages/Dashboard";
-import { Designer } from "./pages/EmailDesigner/EmailDesigner";
 import { ToolsSelection } from "./pages/ToolsSelection/ToolsSelection";
-import { EmailDesignsList } from "./pages/EmailDesignsList/EmailDesignsList";
 import { LiveDemo } from "./pages/LiveDemo";
 import { PricingPage } from "./pages/PricingPage";
 const App: React.FC = () => {
@@ -59,22 +57,12 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/designer" element={<Designer />} />
-        <Route path="/designer/:templateId" element={<Designer />} />
         <Route path="/public/:templateId" element={<Editor />} />
         <Route
           path="/content-templates"
           element={
             <ProtectedRoute>
               <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/designs"
-          element={
-            <ProtectedRoute>
-              <EmailDesignsList />
             </ProtectedRoute>
           }
         />

@@ -11,15 +11,11 @@ import {
 import {
   Menu,
   X,
-  Sparkles,
-  User,
-  Settings,
   LogOut,
   Search,
   Moon,
   Sun,
   Palette,
-  Mail,
   LayoutDashboard,
   Home,
   Zap,
@@ -41,6 +37,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { BrandLogo } from "../icons/BrandLogo";
 
 // Tools from your project
 const tools = [
@@ -51,16 +48,7 @@ const tools = [
     icon: <Palette className="h-4 w-4" />,
     color: "from-emerald-500 to-cyan-500",
     badge: "Popular",
-    stats: "15.3K+ users",
-  },
-  {
-    title: "Email Designer",
-    description: "Create stunning responsive email templates",
-    href: "/designs",
-    icon: <Mail className="h-4 w-4" />,
-    color: "from-blue-500 to-purple-500",
-    badge: "New",
-    stats: "12.5K+ users",
+    stats: "320 users",
   },
 ];
 
@@ -121,7 +109,7 @@ export const EnhancedNavbar: React.FC = () => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/80",
           isScrolled
             ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg"
             : "bg-transparent",
@@ -130,36 +118,7 @@ export const EnhancedNavbar: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center space-x-3"
-            >
-              <Link to="/" className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white" />
-                  </div>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 8,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full"
-                  />
-                </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                    HTML-X
-                  </h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
-                    Creative Studio
-                  </p>
-                </div>
-              </Link>
-            </motion.div>
-
+            <BrandLogo />
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               <NavigationMenu>
@@ -249,7 +208,7 @@ export const EnhancedNavbar: React.FC = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
+            {/* <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -270,7 +229,7 @@ export const EnhancedNavbar: React.FC = () => {
                   </motion.button>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-4">
@@ -328,25 +287,7 @@ export const EnhancedNavbar: React.FC = () => {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/tools" className="flex items-center">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/settings" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Settings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+
                     <DropdownMenuItem
                       onClick={() => {
                         logOut();
